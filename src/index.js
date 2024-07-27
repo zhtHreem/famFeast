@@ -7,6 +7,7 @@ import reportWebVitals from './reportWebVitals';
 import Navbar from './components/Header/navbar';
 import Header from './components/Header/header';
 import Recipe from './components/Recipe/recipe';
+import Profile from './components/Profile/profile';
 const router = createBrowserRouter([
 
   {
@@ -20,7 +21,12 @@ const router = createBrowserRouter([
   {
     path:"/recipe",
     element:<Recipe/>
+  },
+  {
+    path:"/profile",
+    element:<Profile/>
   }
+
 
 
 ])

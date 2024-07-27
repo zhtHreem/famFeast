@@ -1,7 +1,7 @@
 
 import React from "react";
 import { memo } from "react";
-import { Box, Typography,Container,styled,Grid,Paper,Stack,Card,CardContent,CardMedia } from "@mui/material";
+import { Box, Typography,Container,styled } from "@mui/material";
 
 import Navbar from "./navbar";  //#3B2F2F dark brown   balck #1B1212
 import Recipies from "./recipies";

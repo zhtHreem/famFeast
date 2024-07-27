@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography,Container,Grid,Paper,Stack,Card,CardContent,CardMedia } from "@mui/material";
+import { Box, Typography,Grid,Stack,Card,CardContent,CardMedia,Link } from "@mui/material";
 
 
 const recipes = [
@@ -38,7 +38,7 @@ export default function Recipes(){
         <Grid container sx={{ backgroundColor: 'black' }} justifyContent="center" spacing={3} px={12}  paddingRight={3} paddingBottom={4}>
           
           { recipes.map(recipe=>(
-          <Grid item xs={12} sm={6} md={4} zIndex={3} p={4} key={recipe.id}>
+          <Grid component={Link}  href="/recipe" item xs={12} sm={6} md={4} zIndex={3} p={4} key={recipe.id}>
             <Card  sx={{maxWidth: 345,backgroundColor:"#1B1212"  , borderRadius: '16px'}}>
               <CardMedia component="img" image={recipe.image}/>
                <CardContent >
@@ -47,6 +47,7 @@ export default function Recipes(){
             </Card>       
           </Grid>
           ))}
+          
   
          
   
