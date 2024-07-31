@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box,Card,CardMedia,CardContent, Typography, Grid, Menu,Stack, Button, List, ListItem, ListItemIcon, ListItemButton } from "@mui/material";
+import { Box,Card,CardMedia,CardContent, Typography, Grid,Stack, Button,IconButton, List,ListItemIcon, ListItemButton } from "@mui/material";
 import { CheckCircle } from "@mui/icons-material";
 import { KeyboardArrowDown } from "@mui/icons-material";
 import { RadioButtonChecked } from "@mui/icons-material";
@@ -50,7 +50,7 @@ function Recipe(){
     const [like, setLike] = useState(false);
     const [replyIcon,setReplyIcon]=useState(false);
     const [commentBox,setCommentBox]=useState(false);
-
+   
    const handleIngradients=()=>{
      setIngredients(prevState => !prevState);
    }
@@ -133,7 +133,8 @@ const handleReplyIcon=()=>{
                     <ListItemButton key={index} onClick={()=> handleDescriptionCheck(index)}>
                         <ListItemIcon>
                             { checkDescription[index]? (
-                                <CheckCircle sx={{color:"white"}}/>
+                                
+                                 <CheckCircle sx={{color:"white"}}/>
                             ):
                             (
                                 <RadioButtonChecked sx={{color:"white"}}/>
@@ -152,15 +153,22 @@ const handleReplyIcon=()=>{
          
          <Stack direction="row" alignItems="center" spacing={2} marginLeft={2} p={2}>
                                 { like? (
-                                    <ThumbUpAltIcon sx={{color:"orange"}} onClick={handleLike}/>
+                                    <IconButton>
+                                      <ThumbUpAltIcon sx={{color:"orange"}} onClick={handleLike}/>
+                                    </IconButton>  
                                 ) :(
-                                    <ThumbUpOffAltIcon sx={{color:"orange"}}onClick={handleLike}/>
+                                    <IconButton>
+                                       <ThumbUpOffAltIcon sx={{color:"orange"}}onClick={handleLike}/>
+                                    </IconButton>   
                                 )}
                                 { replyIcon?  (
-                                    
+                                    <IconButton>
                                     <ChatBubbleIcon sx={{color:"orange"}} onClick={handleReplyIcon}  />
+                                    </IconButton>
                                 ):(
+                                    <IconButton>
                                     <ChatBubbleOutlineIcon sx={{color:"orange"}} onClick={handleReplyIcon} />
+                                    </IconButton>
                                 )}    
           </Stack>
             
@@ -172,6 +180,8 @@ const handleReplyIcon=()=>{
       {replyIcon &&(
         <Comments/>
       )}  
+
+      
      <Footer/>
      </>
     );

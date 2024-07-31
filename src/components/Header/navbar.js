@@ -31,7 +31,7 @@ export default function Navbar(){
             <Stack direction="row" spacing={2} alignItems="center"> 
 
                <Link href="/" underline="none" sx={{color:"white"}} fontWeight="bold">Home </Link>
-               <Link href="#" underline="none"sx={{color:"white"}} fontWeight="bold">Recipies</Link>
+               <Link href="/profile" underline="none"sx={{color:"white"}} fontWeight="bold">Recipies</Link>
                <IconButton>
                   <SearchIcon fontSize="medium" sx={{color:"white"}}/>
                </IconButton>

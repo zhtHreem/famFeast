@@ -1,7 +1,10 @@
-import React from "react";
-import { Box, Typography,Container,styled,Grid,Paper,Link,Stack,Card,CardContent,CardMedia } from "@mui/material";
+import React,{ useState }  from "react";
+import { Box, Typography,Grid,Paper,Link,Stack,Card,CardContent,CardMedia,Button,IconButton} from "@mui/material";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Layout from "../layout/layout";
+import NewRecipe from "../Recipe/createNewRecipe";
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 const user=[{
     id:1,
     name:'Hareem',
@@ -22,6 +25,12 @@ const displays=[{name:'Recipe Count',count:recipeCount},{name:'Likes',count:1},{
   
 function Profile(){
     const { name, joiningDate } = user[0];
+    const [addrecipe,setAddRecipe]=useState(false);
+
+
+    const handleNewRecipe=()=>{
+        setAddRecipe(true)
+      } 
     return(
      <Layout>
 
@@ -33,7 +42,12 @@ function Profile(){
            <Box component="img" src={require("../../images/useravatar.png")}  alt="User Avatar"  sx={{ width: 100, height: 100, borderRadius: '50%' }} />
            <Typography variant="h3">{name}</Typography>
            <Typography variant="body1">{new Date(joiningDate).toLocaleDateString()}</Typography>
-        
+           <IconButton onClick={handleNewRecipe} sx={{color:"orange",fontWeight:"bold"}}>
+              <ArrowRightIcon/> Add recipe                 
+           </IconButton>
+           {addrecipe &&(
+          <NewRecipe setAddRecipe={setAddRecipe}/>
+    )}
         </Stack> 
 
         <Stack direction="row" p={4} justifyContent="center" spacing={{xs:1,sm:3}}>
@@ -74,6 +88,8 @@ function Profile(){
        </Box>
 
             }
+
+    
              </Layout>
     );
 }

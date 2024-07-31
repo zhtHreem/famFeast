@@ -8,6 +8,7 @@ import Navbar from './components/Header/navbar';
 import Header from './components/Header/header';
 import Recipe from './components/Recipe/recipe';
 import Profile from './components/Profile/profile';
+import NewRecipe from './components/Recipe/createNewRecipe';
 const router = createBrowserRouter([
 
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
   {
     path:"/profile",
     element:<Profile/>
+  },
+  {
+    path:"/newrecipe",
+    element:<NewRecipe/>
   }
 
 
