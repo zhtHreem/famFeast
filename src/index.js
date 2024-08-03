@@ -9,6 +9,8 @@ import Header from './components/Header/header';
 import Recipe from './components/Recipe/recipe';
 import Profile from './components/Profile/profile';
 import NewRecipe from './components/Recipe/createNewRecipe';
+import Login from './components/Login/login';
+import { LoginProvider } from './components/Login/logincontext';
 const router = createBrowserRouter([
 
   {
@@ -30,6 +32,10 @@ const router = createBrowserRouter([
   {
     path:"/newrecipe",
     element:<NewRecipe/>
+  },
+  {
+    path:"/login",
+    element:<Login/>
   }
 
 
@@ -43,7 +49,9 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+     <LoginProvider>
     <RouterProvider router={router}/>
+    </LoginProvider>
   </React.StrictMode>
 );
 

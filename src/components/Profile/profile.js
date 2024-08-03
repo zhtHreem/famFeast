@@ -5,6 +5,8 @@ import Layout from "../layout/layout";
 import NewRecipe from "../Recipe/createNewRecipe";
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import { useLogin} from "../Login/logincontext";
+import Login from "../Login/login";
 const user=[{
     id:1,
     name:'Hareem',
@@ -26,13 +28,21 @@ const displays=[{name:'Recipe Count',count:recipeCount},{name:'Likes',count:1},{
 function Profile(){
     const { name, joiningDate } = user[0];
     const [addrecipe,setAddRecipe]=useState(false);
+    const { isLoginOpen, setLoginOpen } = useLogin();
 
+   
 
     const handleNewRecipe=()=>{
         setAddRecipe(true)
       } 
     return(
      <Layout>
+
+       {isLoginOpen && (
+        <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 5 }}>
+          <Login setLogin={setLoginOpen} />
+        </Box>
+      )}   
 
     {
        <Box sx={{backgroundColor:"#FFFFF0",minHeight: '100vh'}} p={8} >

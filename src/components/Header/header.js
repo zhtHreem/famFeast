@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { memo } from "react";
 import { Box, Typography,Container,styled } from "@mui/material";
 
@@ -7,6 +7,8 @@ import Navbar from "./navbar";  //#3B2F2F dark brown   balck #1B1212
 import Recipies from "./recipies";
 import WindowSize from "../windowsize";
 import Footer from "../Footer/footer";
+import { useLogin } from "../Login/logincontext";
+import Login from "../Login/login";
 
 const BackgroundImage= styled(Box)( ({theme}) =>({
   width: '90%',
@@ -23,14 +25,19 @@ const BackgroundImage= styled(Box)( ({theme}) =>({
 
 
 function Header(){
+   
+   const { isLoginOpen, setLoginOpen } = useLogin();
 
+  
   return(
     <>
-   <Navbar/> 
-   
-    <WindowSize/>
+   {isLoginOpen && (
+        <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 5 }}>
+          <Login setLogin={setLoginOpen} />
+        </Box>
+      )}
       
-   <Box  backgroundColor="black" height="100%" width="auto" display="flex" flexDirection="column" alignItems="center"  position="relative" sx={{overflow: 'hidden'}} >
+   <Box  backgroundColor="black" height="100%" width="auto" display="flex" flexDirection="column" alignItems="center"  position="relative" sx={{overflow: 'hidden',zIndex:0}} >
 
       <BackgroundImage component="img" src={require("../../images/black.png")}sx={{  left:{lg:"10%"},transform: 'rotate(180deg)'}}/>
       <BackgroundImage component="img" src={require("../../images/black.png")}sx={{  left:{lg:"10%"}}}/>
@@ -62,12 +69,13 @@ function Header(){
       </Box>
 
     </Box>
-   
-
+    
+      
+     
    </>
   );
 
 
 }
 
-export default memo(Header);
+export default Header;

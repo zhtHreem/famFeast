@@ -1,10 +1,14 @@
-import React from "react";
-import { Stack,Link,Box, IconButton, Typography } from "@mui/material";
+import React, { useState } from "react";
+import { Stack,Link,Box, IconButton, Typography,Button } from "@mui/material";
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import SearchIcon from '@mui/icons-material/Search';
 import TableRowsIcon from '@mui/icons-material/TableRows';
+import Header from "./header";
+import { useLogin } from "../Login/logincontext";
 export default function Navbar(){
+  const { setLoginOpen } = useLogin();
 
+    
     return(
         <>
         <Box  position="relative" sx={{  backgroundColor:"black", py:2, px:3,overflow: 'hidden'  }}>
@@ -38,11 +42,11 @@ export default function Navbar(){
                <IconButton>
                    <TableRowsIcon Size="large" sx={{color:"white"}}/>
                </IconButton>
+               <Button onClick={() => setLoginOpen(true)}>Login</Button>
             </Stack>
           </Stack>
         </Box>
 
-       
         
        </>
     );
