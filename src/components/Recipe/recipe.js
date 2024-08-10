@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import { Box,Card,CardMedia,CardContent, Typography, Grid,Stack, Button,IconButton, List,ListItemIcon, ListItemButton } from "@mui/material";
 import { CheckCircle } from "@mui/icons-material";
 import { KeyboardArrowDown } from "@mui/icons-material";
@@ -9,14 +11,14 @@ import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import Navbar from "../Header/navbar";
 import Footer from "../Footer/footer";
-
+import Swal from 'sweetalert2';
 import { Grade } from "@mui/icons-material";
 
 import Comments from "./comment";
-const recipes =[
+const recipes1 =[
     {
         id:1,
-         image: require("../../images/Bir.png"),
+         image: require("C"),
           title: 'Biryani',
           description:'Biryani is a fragrant and flavorful rice dish, originating from the Indian subcontinent, made with basmati rice, marinated meat (chicken, beef, mutton, or fish), and a blend of aromatic spices. It is often garnished with fried onions, boiled eggs, and fresh herbs, offering a rich and complex taste that is both satisfying and indulgent.' ,
           listOfIngredients: [
@@ -50,10 +52,40 @@ function Recipe(){
     const [like, setLike] = useState(false);
     const [replyIcon,setReplyIcon]=useState(false);
     const [commentBox,setCommentBox]=useState(false);
-   
+    const [recipe, setRecipe] = useState(null);
+   // const { recipeId } = useParams(); 
+    const [ recipeId,setRecipeId ] = useState('66b2839c09947d7eb0d4e83b'); 
+    console.log("iddd,",recipeId)
+    useEffect(() => {
+        const fetchRecipe = async () => {
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Please wait while we fetch the recipe.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+          try {
+            const response = await axios.get(`http://localhost:5000/api/recipes/${recipeId}`);
+            setRecipe(response.data);
+            Swal.close(); 
+            
+          } catch (error) {
+            console.error('Error fetching recipe:', error);
+          }
+        };
+    
+        fetchRecipe();
+      }, [recipeId]);
+    
+      console.log("iddd,",recipe)
+       if (!recipe) return null; 
    const handleIngradients=()=>{
      setIngredients(prevState => !prevState);
    }
+
+   
    const handleIngradientCheck=(index)=>{
     setIngredientCheck(prevState => ({
         ...prevState,
@@ -82,18 +114,18 @@ const handleReplyIcon=()=>{
     return(
      <>
      <Navbar/> 
-     {recipes.map(recipe=>(
+     
      <Box  p={5} sx={{height:"100%",background:"black"}} >
        
           
         <Grid  direction="row" p={3} display={"flex"}>      
           <Card sx={{maxWidth: 345,backgroundColor:"black",borderStyle:"groove"}} >
-            <CardMedia component="img" image={recipe.image}>
+            <CardMedia component="img" image={`http://localhost:5000/upload/${recipe.image}`}>
                 
             </CardMedia>
            </Card>
               <CardContent sx={{maxWidth: 500,backgroundColor:"#1B1212"}}>
-                <Typography variant="h4"  sx={{color:"white"}}>{recipe.title}</Typography>
+                <Typography variant="h4"  sx={{color:"white"}}>{recipe.name}</Typography>
                 <Typography variant="body"  sx={{color:"white"}}>{recipe.description}</Typography>
               </CardContent>
         </Grid>  
@@ -104,7 +136,7 @@ const handleReplyIcon=()=>{
           { ingredients && (
             <Box sx={{background:"black"}}>
                 <List>
-                    {recipe.listOfIngredients.map((ingredient,index)=>(
+                    {recipe.ingredients.map((ingredient,index)=>(
                        
                         <ListItemButton key={index} onClick={()=>handleIngradientCheck(index)}>
                             <ListItemIcon>
@@ -129,7 +161,7 @@ const handleReplyIcon=()=>{
            { description  && (
               <Box sx={{background:"black"}}>
                 <List>
-                    { recipe.listOfDirections.map((description,index)=>(
+                    { recipe.directions.map((description,index)=>(
                     <ListItemButton key={index} onClick={()=> handleDescriptionCheck(index)}>
                         <ListItemIcon>
                             { checkDescription[index]? (
@@ -174,7 +206,7 @@ const handleReplyIcon=()=>{
             
 
      </Box>
-     ))}
+     
     
 
       {replyIcon &&(
