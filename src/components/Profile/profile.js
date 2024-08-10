@@ -1,4 +1,4 @@
-import React,{ useState }  from "react";
+import React,{ useState , useEffect}  from "react";
 import { Box, Typography,Grid,Paper,Link,Stack,Card,CardContent,CardMedia,IconButton} from "@mui/material";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Layout from "../layout/layout";
@@ -7,10 +7,12 @@ import RestaurantIcon from '@mui/icons-material/Restaurant';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useLogin} from "../Login/logincontext";
 import Login from "../Login/login";
+import Swal from 'sweetalert2';
+import axios from 'axios';
 const user=[{
     id:1,
     name:'Hareem',
-    joiningDate:Date.now(),
+   // joiningDate:Date.now(),
 
 }]
 
@@ -26,15 +28,66 @@ const recipeCount = recipes.length ;
 const displays=[{name:'Recipe Count',count:recipeCount},{name:'Likes',count:1},{name:'lsaa',count:0}]
   
 function Profile(){
-    const { name, joiningDate } = user[0];
+    const [user, setUser] = useState(null);
+    const [recipes, setRecipes] = useState([]);
+    //const { name, joiningDate } = user[0];
     const [addrecipe,setAddRecipe]=useState(false);
     const { isLoginOpen, setLoginOpen } = useLogin();
+
+   
+
+    useEffect(() => {
+ 
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      console.log("user",storedUser)
+      if (storedUser) {
+         console.log("id",storedUser.id)
+          fetchUserData(storedUser.id);
+          fetchUserRecipes(storedUser.id);
+      }
+  }, []);
+
+     
+     // Function to fetch user data
+     const fetchUserData = async (userId) => {
+      Swal.fire({
+        title: 'Loading...',
+        
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+      try {
+          const response = await axios.get(`http://localhost:5000/api/users/${userId}`);
+          setUser(response.data);
+      } catch (error) {
+          console.error('Error fetching user data:', error);
+      }
+  };
+
+  const fetchUserRecipes = async (userId) => {
+      
+    try {
+        const response = await axios.get(`http://localhost:5000/api/recipes/user/${userId}`);
+        setRecipes(response.data);
+        Swal.close(); 
+    } catch (error) {
+        console.error('Error fetching recipes:', error);
+    }
+};
 
    
 
     const handleNewRecipe=()=>{
         setAddRecipe(true)
       } 
+// Ensure user data is loaded before accessing properties
+if (!user) {
+  return null;
+}
+
+
     return(
      <Layout>
 
@@ -50,8 +103,8 @@ function Profile(){
         <Stack direction="column" alignItems="center" justifyContent="center">
          
            <Box component="img" src={require("../../images/useravatar.png")}  alt="User Avatar"  sx={{ width: 100, height: 100, borderRadius: '50%' }} />
-           <Typography variant="h3">{name}</Typography>
-           <Typography variant="body1">{new Date(joiningDate).toLocaleDateString()}</Typography>
+           <Typography variant="h3">{user.username}</Typography>
+           <Typography variant="body1">date</Typography>
            <IconButton onClick={handleNewRecipe} sx={{color:"orange",fontWeight:"bold"}}>
               <ArrowRightIcon/> Add recipe                 
            </IconButton>
@@ -83,9 +136,9 @@ function Profile(){
                 <Grid component={Link}  href="/recipe" item xs={12} sm={6} md={4} zIndex={3} p={4} key={recipe.id}>
                     <Card  sx={{maxWidth: 345  ,backgroundColor:"#FFFFF0" ,borderRadius: '16px',display:"flex",alignItems:"center",justifyContent:"center"}} >
 
-                        <CardMedia component="img" image={recipe.image} sx={{ width: 100, height: 100, borderRadius: '50%' }}/>
+                        <CardMedia component="img" image={`http://localhost:5000/upload/${recipe.image}`} sx={{ width: 100, height: 100, borderRadius: '50%' }}/>
                         <CardContent >
-                           <Typography  textAlign="center"fontFamily='Fredoka One, sans-serif' variant="h5">{recipe.title}</Typography>
+                           <Typography  textAlign="center"fontFamily='Fredoka One, sans-serif' variant="h5">{recipe.name}</Typography>
                         </CardContent>
                         <ArrowForwardIosIcon sx={{color:"black"}}/>
                    </Card>       
