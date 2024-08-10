@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Stack,Link,Box, IconButton, Typography,Button } from "@mui/material";
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import SearchIcon from '@mui/icons-material/Search';
@@ -6,6 +6,16 @@ import TableRowsIcon from '@mui/icons-material/TableRows';
 import Header from "./header";
 import { useLogin } from "../Login/logincontext";
 export default function Navbar(){
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      setIsAuthenticated(true);
+    
+    }
+  }, []);
+  
   const { setLoginOpen } = useLogin();
 
     
@@ -35,14 +45,17 @@ export default function Navbar(){
             <Stack direction="row" spacing={2} alignItems="center"> 
 
                <Link href="/" underline="none" sx={{color:"white"}} fontWeight="bold">Home </Link>
-               <Link href="/profile" underline="none"sx={{color:"white"}} fontWeight="bold">Recipies</Link>
+               <Link href="/profile" underline="none"sx={{color:"white"}} fontWeight="bold">Profile</Link>
                <IconButton>
                   <SearchIcon fontSize="medium" sx={{color:"white"}}/>
                </IconButton>
                <IconButton>
                    <TableRowsIcon Size="large" sx={{color:"white"}}/>
                </IconButton>
+               
+              { !isAuthenticated &&(
                <Button onClick={() => setLoginOpen(true)}>Login</Button>
+              )}
             </Stack>
           </Stack>
         </Box>
