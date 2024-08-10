@@ -1,13 +1,105 @@
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 import { Paper,Box,TextField,IconButton,CardMedia, Typography,Stack, Button } from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
+import Swal from 'sweetalert2';
+import axios from 'axios';
 function NewRecipe({ setAddRecipe }){
       const [ingredients,setIngredients]=useState([""]);
       const [directions,setDirections]=useState([""]);
       const [description,setDescription]=useState("");
       const [image, setImage] = useState(null);
+      const [imageFile, setImageFile] = useState(null);
+      const [userId, setUserId] = useState(null);
+      const [name, setName] = useState("Recipe name test");
+
+
+
+
+      useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        if (storedUser) {
+            setUserId(storedUser.id);
+        }
+    }, []); 
+    
+    useEffect(() => {
+        console.log("userid", userId);
+    }, [userId]); 
+    
+    const handleEnter = async () => {
+        try {
+
+            const formData = new FormData();
+            
+    
+      
+            
+    
+            
+            
+            
+            if (!imageFile ) {
+                
+                alert('Choose an Image.');
+                return;
+            }
+            else if(!name){
+                alert('Please enter the Recipe name.');
+                return;
+            }else if(!description){
+                alert('Description is required.');
+                return; 
+            }else if(!ingredients){
+                alert('Enter ingredients');
+                return;
+            }else if(!directions){
+                alert('Enter directions.');
+                return;
+            }
+
+            formData.append('user', userId);
+                formData.append('name', name);
+                formData.append('description', description);
+                ingredients.forEach((ingredient, index) => {
+                    formData.append(`ingredients[${index}]`, ingredient);
+                });
+                directions.forEach((direction, index) => {
+                    formData.append(`directions[${index}]`, direction);
+                });
+        
+                formData.append('image', imageFile);
+    
+
+            for (let pair of formData.entries()) {
+                if (pair[0] === 'image') {
+                    console.log(pair[0] + 'image: ' + pair[1].name); 
+                } else {
+                    console.log(pair[0] + ': ' + pair[1]);
+                }
+            }
+            const response = await axios.post('http://localhost:5000/api/recipes', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Recipe created successfully:', response.data);
+    
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Recipe created successfully!',
+                confirmButtonText: 'OK'
+            });
+    
+            setAddRecipe(false); // Close the form on success
+        } catch (error) {
+            console.error('Error creating recipe:', error);
+        }
+    };
+    
+    
     const handleAddIngredients=()=>{
            setIngredients([...ingredients,""])
     }  
@@ -31,46 +123,26 @@ function NewRecipe({ setAddRecipe }){
          } 
 
 
-    const handleEnter=()=>{
-        console.log(ingredients);
-        console.log(directions);
-    }    
+    
 
     
 
     
 
-    const handleImageChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                convertToPNG(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const convertToPNG = (dataURL) => {
-        const img = new Image();
-        img.src = dataURL;
-        img.onload = () => {
-            // Create a canvas element to process the image
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = img.width;
-            canvas.height = img.height;
-
-            // Draw the image on the canvas
-            ctx.drawImage(img, 0, 0);
-
-            // Convert the canvas content to a PNG data URL
-            const pngDataURL = canvas.toDataURL('image/png');
-
-            // Update state with the PNG data URL
-            setImage(pngDataURL);
+     const handleImageChange = (event) => {
+        console.log("handleImageChange triggered");
+            const file = event.target.files[0];
+            console.log("Image Data URL:", event.target.files[0]); 
+            if (file) {
+                setImageFile(file);
+                const imageURL = URL.createObjectURL(file);
+                setImage(imageURL);
+                
+            }
         };
-    };
+
+    
+    
     return(
          <Box  sx={{position: 'absolute', zIndex: 4,backgroundColor: 'rgba(0, 0, 0, 0.5)',width:"80%",top:"10%",left:"10%"}}>
             <Paper sx={{p:{xs:3,sm:6}}} elevation={24}>
@@ -114,8 +186,9 @@ function NewRecipe({ setAddRecipe }){
                 <Stack p={4} spacing={4}>
                   <Typography variant="h6">Add Image</Typography>
                      <Paper component="label" sx={{ position: 'relative', padding: 3, backgroundColor: "lightgrey", cursor: "pointer" }}>
-                        <input  type="file"  accept="image/*"  hidden onChange={handleImageChange}/>
-                         <CardMedia  component="img"  image={image || "https://via.placeholder.com/150"}  alt="Selected"  sx={{ height: 150, width: '100%', objectFit: 'cover' }}/>
+                        <input  type="file" name="image" accept="image/*"  hidden onChange={handleImageChange}/>
+                         <CardMedia  component="img"      image={typeof image === 'string' ? image : "https://via.placeholder.com/150"}
+                          alt="Selected"  sx={{ height: 150, width: '100%', objectFit: 'cover' }}/>
                          {!image && (
                        <Box sx={{ position: 'absolute', top: 0,left: 0, height: '100%', width: '100%', display: 'flex',alignItems: 'center',justifyContent: 'center', backgroundColor: 'rgba(255, 255, 255, 0.5)' }}>
                           <IconButton size="large">
