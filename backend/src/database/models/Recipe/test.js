@@ -1,51 +1,98 @@
-const mongoose = require('mongoose');
-const connectDB = require('../../connectivity'); 
-const Recipe = require('./schema'); 
+import fetch from 'node-fetch';
+import connectDB from '../../connectivity.js'; // Your database connection module
+import mongoose from 'mongoose';
 
 const runTest = async () => {
   try {
+    // Connect to MongoDB
     await connectDB();
     console.log('MongoDB connected...');
 
-    // Create a new recipe
-    const recipeData = {
-      name: 'Spaghetti Bolognese',
-      description: 'A classic Italian pasta dish.',
-      ingredients: ['spaghetti', 'ground beef', 'tomato sauce'],
-      directions: ['Cook the spaghetti', 'Prepare the sauce', 'Combine and serve'],
-    };
+    const baseURL = 'http://localhost:5000/api'; // Base URL for API
 
-    let newRecipe = new Recipe(recipeData);
-    await newRecipe.save();
-    console.log('Recipe created:', newRecipe);
+    // Create a new recipe
+    let response = await fetch(`${baseURL}/recipes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Test Recipe',
+        description: 'This is a test recipe',
+        ingredients: ['Ingredient 1', 'Ingredient 2'],
+        directions: ['Step 1', 'Step 2']
+      }),
+    });
+    let responseText = await response.text();
+    console.log('Response text (create):', responseText);
+    let recipe = JSON.parse(responseText);
+    console.log('Recipe created:', recipe);
+
+    
+    const recipeId = recipe._id; // Store the created recipe ID
+    const recipeName=recipe.name;
+
 
     // Read all recipes
-    const allRecipes = await Recipe.find();
-    console.log('All recipes:', allRecipes);
+    response = await fetch(`${baseURL}/recipes`);
+    responseText = await response.text();
+    console.log('Response text (all recipes):', responseText);
+    let recipes = JSON.parse(responseText);
+    console.log('All recipes:', recipes);
 
-
-    // Search recipes by name
-    const searchQuery = 'Spaghetti';
-    const searchedRecipes = await Recipe.find({ name: new RegExp(searchQuery, 'i') }); // Case-insensitive search
-    console.log('Searched recipes:', searchedRecipes);
-
-
-    // Update a recipe by ID
-    const updatedRecipe = await Recipe.findByIdAndUpdate(newRecipe._id, { name: 'Updated Spaghetti Bolognese' }, { new: true });
-    console.log('Updated recipe:', updatedRecipe);
-
-
-
-    // Delete a recipe by ID
-    await Recipe.findByIdAndDelete(newRecipe._id);
-    console.log('Recipe deleted');
-
+    // Read recipe by ID
+    response = await fetch(`${baseURL}/recipes/${recipeId}`);
+    responseText = await response.text();
+    console.log('Response text (recipe by ID):', responseText);
+    const recipeById = JSON.parse(responseText);
+    console.log('Recipe by ID:', recipeById);
    
-    // Close the database connection
+
+    //read by name
+    response = await fetch(`${baseURL}/recipes/search?name=${encodeURIComponent(recipeName)}`);
+    responseText = await response.text();
+    console.log('Response text (recipe by Name):', responseText);
+    const recipeByName = JSON.parse(responseText);
+    console.log('Recipe by Name:', recipeByName);
+
+    // Update recipe by ID
+    response = await fetch(`${baseURL}/recipes/${recipeId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Updated Test Recipe',
+        description: 'This is an updated test recipe'
+      }),
+    });
+    responseText = await response.text();
+    console.log('Response text (update):', responseText);
+    if (response.ok) {
+      const updatedRecipe = JSON.parse(responseText);
+      console.log('Updated recipe:', updatedRecipe);
+    } else {
+      console.error('Failed to update recipe:', response.status, response.statusText);
+    }
+
+    // Delete recipe by ID
+    response = await fetch(`${baseURL}/recipes/${recipeId}`, { method: 'DELETE' });
+    responseText = await response.text();
+    console.log('Response text (delete):', responseText);
+    console.log('Recipe deleted:', responseText);
+
+    // Verify deletion
+    response = await fetch(`${baseURL}/recipes/${recipeId}`);
+    responseText = await response.text();
+    console.log('Response text (verify deletion):', responseText);
+    if (response.status === 404) {
+      console.log('Deleted recipe verification: Recipe not found (as expected)');
+    } else {
+      console.log('Deleted recipe verification:', JSON.parse(responseText));
+    }
+
+    // Close the MongoDB connection
     await mongoose.connection.close();
   } catch (error) {
     console.error('Error in test:', error);
   }
 };
 
+// Run the test
 runTest();

@@ -18,7 +18,7 @@ import Comments from "./comment";
 const recipes1 =[
     {
         id:1,
-         image: require("C"),
+         image: require("../../images/Bir.png"),
           title: 'Biryani',
           description:'Biryani is a fragrant and flavorful rice dish, originating from the Indian subcontinent, made with basmati rice, marinated meat (chicken, beef, mutton, or fish), and a blend of aromatic spices. It is often garnished with fried onions, boiled eggs, and fresh herbs, offering a rich and complex taste that is both satisfying and indulgent.' ,
           listOfIngredients: [
@@ -45,6 +45,7 @@ const recipes1 =[
 ]
 
 function Recipe(){
+  const { search } = useParams(); 
     const [ingredients,setIngredients]=useState(false);
     const [checkIngredients,setIngredientCheck]=useState({});
     const [description,setDescription]=useState(false);
@@ -54,8 +55,11 @@ function Recipe(){
     const [commentBox,setCommentBox]=useState(false);
     const [recipe, setRecipe] = useState(null);
    // const { recipeId } = useParams(); 
-    const [ recipeId,setRecipeId ] = useState('66b2839c09947d7eb0d4e83b'); 
-    console.log("iddd,",recipeId)
+    
+    console.log("Recipe id,",search)
+
+
+  
     useEffect(() => {
         const fetchRecipe = async () => {
             Swal.fire({
@@ -67,7 +71,7 @@ function Recipe(){
                 }
             });
           try {
-            const response = await axios.get(`http://localhost:5000/api/recipes/${recipeId}`);
+            const response = await axios.get(`http://localhost:5000/api/recipes/${search}`); //http://localhost:5000/api/recipes/${recipeId}
             setRecipe(response.data);
             Swal.close(); 
             
@@ -77,9 +81,9 @@ function Recipe(){
         };
     
         fetchRecipe();
-      }, [recipeId]);
+      }, [search]);
     
-      console.log("iddd,",recipe)
+      console.log("fetched recipe,",recipe)
        if (!recipe) return null; 
    const handleIngradients=()=>{
      setIngredients(prevState => !prevState);
@@ -120,7 +124,7 @@ const handleReplyIcon=()=>{
           
         <Grid  direction="row" p={3} display={"flex"}>      
           <Card sx={{maxWidth: 345,backgroundColor:"black",borderStyle:"groove"}} >
-            <CardMedia component="img" image={`http://localhost:5000/upload/${recipe.image}`}>
+            <CardMedia component="img" image={`http://localhost:5000/upload/${recipe.image}`} sx={{height:300}}>
                 
             </CardMedia>
            </Card>

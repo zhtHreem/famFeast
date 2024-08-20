@@ -11,12 +11,9 @@ import Profile from './components/Profile/profile';
 import NewRecipe from './components/Recipe/createNewRecipe';
 import Login from './components/Login/login';
 import { LoginProvider } from './components/Login/logincontext';
-import CommentSect from './components/Recipe/comm';
+
 const router = createBrowserRouter([
-  {
-    path:"/com",
-    element:<CommentSect/>
-  },
+
   {
     path:"/",
     element:<App/>
@@ -26,7 +23,7 @@ const router = createBrowserRouter([
     element:<Navbar/>
   },
   {
-    path:"/recipe",
+    path:"/recipe/:search",
     element:<Recipe/>
   },
   {

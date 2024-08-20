@@ -71,10 +71,13 @@ function Profile(){
     try {
         const response = await axios.get(`http://localhost:5000/api/recipes/user/${userId}`);
         setRecipes(response.data);
-        Swal.close(); 
+        
     } catch (error) {
         console.error('Error fetching recipes:', error);
     }
+    finally {
+      Swal.close(); // Ensure that the spinner is closed even if an error occurs
+  }
 };
 
    
@@ -125,6 +128,8 @@ if (!user) {
         
         
         
+        {recipes.length > 0 ? (
+  
         <Stack  zIndex={0} justifyContent="center" spacing={{xs:1,sm:3}}>
            <Paper elevation={8}   sx={{backgroundColor:"#FFFFFF",display: 'flex',flexDirection:"column",alignItems:"center",padding:1,borderRadius:'2%',textAlign: 'center' ,justifyContent: 'space-evenly'}} >
            <Typography variant="h3" pt={4} pb={{sx:4,sm:0}} >Explore Your Recipes</Typography>
@@ -147,7 +152,11 @@ if (!user) {
           </Grid>
            </Paper>
         </Stack>
-         
+           ) : (
+            <Typography variant="h6" textAlign="center" color="gray" mt={4}>
+                You have no recipes yet. Start by adding your first recipe!
+            </Typography>
+        )}
        </Box>
 
             }
