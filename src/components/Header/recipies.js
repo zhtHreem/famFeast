@@ -1,6 +1,7 @@
-import React from "react";
-import { Box, Typography,Grid,Stack,Card,CardContent,CardMedia,Link } from "@mui/material";
-
+import React, { useState, useEffect } from "react";
+import axios from 'axios';
+import { Box, Typography,Grid,Stack,Card,CardContent,CardMedia } from "@mui/material";
+import { Link } from 'react-router-dom';
 
 const recipes = [
     { id: 1, image: require("../../images/Bir.png"), title: 'Biryani' },
@@ -11,6 +12,21 @@ const recipes = [
     { id: 6, image: require("../../images/Bir.png"), title: 'Biryani' },
   ];
 export default function Recipes(){
+  const [recipes, setRecipes] = useState([]);
+
+  useEffect(() => {
+    // Fetch recipes from the API
+    const fetchRecipes = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/recipes');
+        setRecipes(response.data);
+      } catch (err) {
+        console.error('Failed to fetch recipes:', err);
+      }
+    };
+
+    fetchRecipes();
+  }, []);
     return(
 
     
@@ -38,14 +54,19 @@ export default function Recipes(){
         <Grid container sx={{ backgroundColor: 'black' }} justifyContent="center" spacing={3} px={12}  paddingRight={3} paddingBottom={4}>
           
           { recipes.map(recipe=>(
-          <Grid component={Link}  href="/recipe" item xs={12} sm={6} md={4} zIndex={3} p={4} key={recipe.id}>
+           
+          <Grid  item xs={12} sm={6} md={4} zIndex={3}  key={recipe.id}>
+            <Link to={`/recipe/${recipe._id}`} style={{ textDecoration: 'none' }}> 
             <Card  sx={{maxWidth: 345,backgroundColor:"#1B1212"  , borderRadius: '16px'}}>
-              <CardMedia component="img" image={recipe.image}/>
+              <CardMedia component="img" image={`http://localhost:5000/upload/${recipe.image}`} sx={{height:300,objectFit:'fill'}}/>
                <CardContent >
-                 <Typography color="white" textAlign="center"fontFamily='Fredoka One, sans-serif' variant="h5">{recipe.title}</Typography>
+                 <Typography color="white" textAlign="center"fontFamily='Fredoka One, sans-serif' variant="h5">{recipe.name}</Typography>
                </CardContent>
-            </Card>       
+            </Card>  
+             </Link>  
+
           </Grid>
+          
           ))}
           
   
