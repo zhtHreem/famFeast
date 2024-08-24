@@ -39,10 +39,11 @@ router.get('/recipes', async (req, res) => {
 
 // Search recipes by name
 router.get('/recipes/search', async (req, res) => {
-  console.log("searchidm",req.params.id )
+  console.log("searched recipe name:",req.query.recipe )
   try {
-    const { name } = req.query;
-    const recipes = await Recipe.find({ name: new RegExp(name, 'i') });
+    
+    const recipes = await Recipe.find({ name: new RegExp(req.query.recipe, 'i') });
+    console.log("searched recipes list:",recipes)
     res.status(200).json(recipes);
   } catch (error) {
     res.status(500).json({ error: `Error searching recipes: ${error.message}` });
