@@ -1,13 +1,19 @@
 import React, { useState,useEffect } from "react";
-import { Stack,Link,Box, IconButton, Typography,Button } from "@mui/material";
+import { Stack,Link,Box, IconButton, Typography,Button,TextField } from "@mui/material";
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import SearchIcon from '@mui/icons-material/Search';
 import TableRowsIcon from '@mui/icons-material/TableRows';
 import Header from "./header";
 import { useLogin } from "../Login/logincontext";
+import { useNavigate } from "react-router-dom";
+
+
 export default function Navbar(){
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
+  const [search,setSearch]=useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+
   useEffect(() => {
     const user = localStorage.getItem('user');
     if (user) {
@@ -15,6 +21,19 @@ export default function Navbar(){
     
     }
   }, []);
+  const handleLogout = () => {
+    // Clear session storage or local storage if applicable
+    localStorage.removeItem('user');
+    setIsAuthenticated(false);
+    setLoginOpen(false); // Close the login modal or popup
+};
+
+   const performSearch = () => {
+     setSearch(true)
+     if (searchTerm) {
+      navigate(`/search/${encodeURIComponent(searchTerm)}`);
+     }
+    };
   
   const { setLoginOpen } = useLogin();
 
@@ -45,17 +64,26 @@ export default function Navbar(){
             <Stack direction="row" spacing={2} alignItems="center"> 
 
                <Link href="/" underline="none" sx={{color:"white"}} fontWeight="bold">Home </Link>
+               {isAuthenticated &&(
                <Link href="/profile" underline="none"sx={{color:"white"}} fontWeight="bold">Profile</Link>
-               <IconButton>
+              )}
+
+               { search && (
+                 <TextField id="standard-search"  label="  Search field" value={searchTerm}  onChange={(event)=>setSearchTerm(event.target.value)} type="search"   size="small"  variant="standard" sx={{color:"white",backgroundColor:"white",textDecorationColor:"white"}}/>
+                )}  
+               <IconButton onClick={performSearch}>
                   <SearchIcon fontSize="medium" sx={{color:"white"}}/>
                </IconButton>
+               
                <IconButton>
                    <TableRowsIcon Size="large" sx={{color:"white"}}/>
                </IconButton>
                
-              { !isAuthenticated &&(
+              { !isAuthenticated ?(
                <Button onClick={() => setLoginOpen(true)}>Login</Button>
-              )}
+              ):(
+              <Button onClick={handleLogout}>Logout</Button>
+            )}
             </Stack>
           </Stack>
         </Box>
