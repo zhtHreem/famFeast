@@ -11,7 +11,7 @@ import Profile from './components/Profile/profile';
 import NewRecipe from './components/Recipe/createNewRecipe';
 import Login from './components/Login/login';
 import { LoginProvider } from './components/Login/logincontext';
-
+import SearchResults from './components/Tool/search';
 const router = createBrowserRouter([
 
   {
@@ -25,6 +25,10 @@ const router = createBrowserRouter([
   {
     path:"/recipe/:search",
     element:<Recipe/>
+  },
+  {
+     path:"/search/:query",
+    element:<SearchResults/>
   },
   {
     path:"/profile",
