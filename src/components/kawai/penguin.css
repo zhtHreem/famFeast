@@ -1,0 +1,193 @@
+/* Penguin.css */
+.penguin {
+    width: 40vmin;
+    height: 50vmin;
+    background: #f003;
+    border-radius: 100% 100% 100% 100% / 150% 150% 40% 40%;
+    border: 0.5vmin solid;
+    background: 
+      radial-gradient(farthest-side at 50% 100%, #0000 99.99%, #000 0) 0 10% / 50.1% 15% no-repeat,
+      radial-gradient(farthest-side at 50% 100%, #0000 99.99%, #000 0) 100% 10% / 50.1% 15% no-repeat,
+      white;
+      box-shadow: 
+      inset 0 4vmin 0 1vmin, /* Inner shadow */
+      0 0 15vmin rgba(255, 255, 255, 0.6); /* Outer white shadow */
+    position: absolute;
+    top: 50%;
+    left: 80%;
+    transform: translate(-50%, -50%);
+    /* Removed animation to stop movement */
+    /* animation: walkLeft 5s linear infinite; */
+    transition: transform 0.5s ease;
+  }
+  
+  @keyframes blink {
+    0%, 100% {
+      transform: scaleY(1);
+    }
+    50% {
+      transform: scaleY(0.1);
+    }
+  }
+  
+  @keyframes waveHand {
+    0% {
+        transform: rotate(245deg);
+    }
+    50% {
+        transform: rotate(230deg);
+    }
+    100% {
+        transform: rotate(245deg);
+    }
+}
+
+@keyframes moveRight {
+    0% {
+        transform: translate(-50%, -50%);
+    }
+    20% {
+        transform: translate(calc(-50% + 5%), -50%);
+    }
+    40% {
+        transform: translate(calc(-50% + 10%), -50%);
+    }
+    60% {
+        transform: translate(calc(-50% + 15%), -50%);
+    }
+    80% {
+        transform: translate(calc(-50% + 20%), -50%);
+    }
+    100% {
+        transform: translate(calc(-50% + 25%), -50%);
+    }
+}
+
+.penguin:hover {
+    animation: moveRight 6s steps(10) forwards;
+}
+
+
+
+  /*.penguin:hover {
+    transform: translate(-50%, -50%) translateX(-50%) translateY(0);
+    
+  }*/
+  
+  .penguin:hover .beak {
+    border-radius: 100% 100% 60% 60% / 80%;
+  }
+  
+  .penguin * {
+    position: absolute;
+    box-sizing: border-box;
+  }
+  
+  .eye {
+    width: 12%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    left: 30%;
+    top: 35%;
+    transform: translate(-50%, -50%);
+    background: 
+      radial-gradient(circle at 30% 35%, #fff 15%, #fff0 0),
+      radial-gradient(circle at 50% 20%, #fff 8%, #fff0 0),
+      black;
+    animation: blink 3s linear infinite;
+  }
+  
+  .eye + .eye {
+    left: 65%;
+  }
+  
+  .beak {
+    width: 16%;
+    height: 6%;
+    border: 0.5vmin solid;
+    background: orange;
+    top: 46%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 100% 100% 60% 60% / 100%;
+  }
+  
+  .cheek {
+    width: 14%;
+    height: 7%;
+    background: red;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    top: 47%;
+    left: 30%;
+    background: 
+      repeating-linear-gradient(-60deg, #0000 0 10%, #c008 0 15%),
+      #fdd;
+    box-shadow: inset 0 0 0.25vmin 0.75vmin #fdd;
+  }
+  
+  .cheek + .cheek {
+    left: 70%;
+  }
+  
+  .foot {
+    width: 25%;
+    height: 10%;
+    background: black;
+    border-radius: 50%;
+    bottom: 0;
+    left: 25%;
+    transform: translate(-50%, 20%) rotate(10deg);
+  }
+  
+  .foot + .foot {
+    left: 75%;
+    transform: translate(-50%, 20%) rotate(-10deg);
+  }
+  
+  .arm {
+    width: 15%;
+    height: 25%;
+    background: black;
+    border-radius: 100% / 0 0 200% 200%;
+    
+    clip-path: polygon(0 0, 100% 40%, 100% 100%, 0 100%);
+    top: 40%;
+    
+
+    left: auto;
+    right: -10%;
+    transform: scaleX(-1) rotate(50deg);
+    animation:none;
+    transition: transform 0.5s ease;
+
+  }
+
+  /* Apply the animation to only the right arm */
+
+
+.arm:hover  {
+    /* Ensure the second arm does not have animation */
+    animation: waveHand 2s ease-in-out infinite;
+    
+}
+
+/* Add message styling */
+.arm:hover::after {
+    content: "Hi";
+    position: absolute;
+    top: -2em; /* Adjust as needed */
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgb(8, 7, 7); /* Adjust text color */
+    font-size: 20em; /* Adjust text size */
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+  
+  .arm + .arm {
+    left: -10%;
+    transform: rotate(50deg);
+    animation: none;
+  }
+  
