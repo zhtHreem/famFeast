@@ -16,7 +16,7 @@ const port = process.env.PORT || 5000;
 connectDB();
 app.use(cors(
   {
-    origin:["https://deploy-men-1whq.vercel.app"],
+    origin:["https://fam-feast-frontend.vercel.app"],
     methods:["POST","GET"],
     credentials:true
   }
