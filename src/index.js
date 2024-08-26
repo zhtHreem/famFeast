@@ -12,8 +12,14 @@ import NewRecipe from './components/Recipe/createNewRecipe';
 import Login from './components/Login/login';
 import { LoginProvider } from './components/Login/logincontext';
 import SearchResults from './components/Tool/search';
-const router = createBrowserRouter([
+import Penguin from './components/kawai/penguin';
 
+
+const router = createBrowserRouter([
+  {
+    path:"/pen",
+    element:<Penguin/>
+  },
   {
     path:"/",
     element:<App/>
