@@ -45,9 +45,9 @@ function Login({ setLogin }){
           
           setLogin(false); 
           
-          
-          navigate('/');   //to homepage
           window.location.reload();
+          navigate('/');   //to homepage
+          
       
         } catch (error) {
           if (error.response) {
