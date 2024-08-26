@@ -17,7 +17,7 @@ connectDB();
 app.use(cors(
   {
     origin:["https://fam-feast-frontend.vercel.app"],
-    methods:["POST","GET"],
+    methods:["POST","GET","PUT","DELETE"],
     credentials:true
   }
 ));
