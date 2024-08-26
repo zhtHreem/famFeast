@@ -12,7 +12,7 @@ function NewRecipe({ setAddRecipe }){
       const [image, setImage] = useState(null);
       const [imageFile, setImageFile] = useState(null);
       const [userId, setUserId] = useState(null);
-      const [name, setName] = useState("Recipe name test");
+      const [name, setName] = useState("");
 
 
 
@@ -151,8 +151,12 @@ function NewRecipe({ setAddRecipe }){
                 </IconButton>
                <Typography variant="h3" sx={{textAlign:"center"}}>Create New Recipe</Typography>
                 <Stack direction={{xs:"column",md:"row"}} justifyContent="space-between">
+
                   <Stack>  
-                  
+                  <Typography variant="h4" >Recipe Name</Typography> 
+                  <TextField label='Enter recipe name' value={name} onChange={(e) => setName(e.target.value)} />
+
+
                    <Typography variant="h4" sx={{marginTop:4}}>Add Ingredients</Typography> 
                    <Stack spacing={2} p={2}>
                    {ingredients.map((ingredient,index)=>
