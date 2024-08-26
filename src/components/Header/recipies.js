@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Box, Typography,Grid,Stack,Card,CardContent,CardMedia } from "@mui/material";
 import { Link } from 'react-router-dom';
 
+/*
 const recipes = [
     { id: 1, image: require("../../images/Bir.png"), title: 'Biryani' },
     { id: 2, image: require("../../images/Bir.png"), title: 'Biryani' },
@@ -10,7 +11,7 @@ const recipes = [
     { id: 4, image: require("../../images/Bir.png"), title: 'Biryani' },
     { id: 5, image: require("../../images/Bir.png"), title: 'Biryani' },
     { id: 6, image: require("../../images/Bir.png"), title: 'Biryani' },
-  ];
+  ];*/
 export default function Recipes(){
   const [recipes, setRecipes] = useState([]);
 

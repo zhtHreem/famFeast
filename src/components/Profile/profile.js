@@ -15,7 +15,7 @@ const user=[{
    // joiningDate:Date.now(),
 
 }]
-
+/*
 const recipes = [
     { id: 1, image: require("../../images/Bir.png"), title: 'Biryani' },
     { id: 2, image: require("../../images/Bir.png"), title: 'Biryani' },
@@ -23,7 +23,7 @@ const recipes = [
     { id: 4, image: require("../../images/Bir.png"), title: 'Biryani' },
     { id: 5, image: require("../../images/Bir.png"), title: 'Biryani' },
     { id: 6, image: require("../../images/Bir.png"), title: 'Biryani' },
-  ];
+  ];*/
 const recipeCount = recipes.length ;
 const displays=[{name:'Recipe Count',count:recipeCount},{name:'Likes',count:1},{name:'lsaa',count:0}]
   

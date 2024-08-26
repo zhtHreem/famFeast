@@ -15,7 +15,7 @@ import Swal from 'sweetalert2';
 import { Grade } from "@mui/icons-material";
 
 import Comments from "./comment";
-const recipes1 =[
+/*const recipes1 =[
     {
         id:1,
          image: require("../../images/Bir.png"),
@@ -42,7 +42,7 @@ const recipes1 =[
             '6. Garnish with fresh herbs and serve.'
         ]
     }
-]
+]*/
 
 function Recipe(){
   const { search } = useParams(); 
