@@ -16,7 +16,7 @@ const SearchResults = () => {
       try {
         setLoading(true);
         // Replace with your actual API endpoint
-        const response = await axios.get(`http://localhost:5000/api/recipes/search?recipe=${query}`);
+        const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/search?recipe=${query}`);
         console.log("response:", response);
         setResults(response.data);
       } catch (error) {
@@ -42,7 +42,7 @@ const SearchResults = () => {
               <Card sx={{ maxWidth: 345, backgroundColor: "#1B1212", borderRadius: '16px' }}>
                 <CardMedia
                   component="img"
-                  image={`http://localhost:5000/upload/${recipe.image}`}
+                  image={`https://fam-feast-api.vercel.app/upload/${recipe.image}`}
                   sx={{ height: 300, objectFit: 'fill' }}
                 />
                 <CardContent>

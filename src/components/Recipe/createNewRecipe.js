@@ -79,7 +79,7 @@ function NewRecipe({ setAddRecipe }){
                     console.log(pair[0] + ': ' + pair[1]);
                 }
             }
-            const response = await axios.post('http://localhost:5000/api/recipes', formData, {
+            const response = await axios.post('https://fam-feast-api.vercel.app/api/recipes', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

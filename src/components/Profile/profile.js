@@ -59,7 +59,7 @@ function Profile(){
         }
     });
       try {
-          const response = await axios.get(`http://localhost:5000/api/users/${userId}`);
+          const response = await axios.get(`https://fam-feast-api.vercel.app/api/users/${userId}`);
           setUser(response.data);
       } catch (error) {
           console.error('Error fetching user data:', error);
@@ -69,7 +69,7 @@ function Profile(){
   const fetchUserRecipes = async (userId) => {
       
     try {
-        const response = await axios.get(`http://localhost:5000/api/recipes/user/${userId}`);
+        const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/user/${userId}`);
         setRecipes(response.data);
         
     } catch (error) {
@@ -99,6 +99,9 @@ if (!user) {
           <Login setLogin={setLoginOpen} />
         </Box>
       )}   
+
+
+
 
     {
        <Box sx={{backgroundColor:"#FFFFF0",minHeight: '100vh'}} p={8} >
@@ -141,7 +144,7 @@ if (!user) {
                 <Grid component={Link}  href="/recipe" item xs={12} sm={6} md={4} zIndex={3} p={4} key={recipe.id}>
                     <Card  sx={{maxWidth: 345  ,backgroundColor:"#FFFFF0" ,borderRadius: '16px',display:"flex",alignItems:"center",justifyContent:"center"}} >
 
-                        <CardMedia component="img" image={`http://localhost:5000/upload/${recipe.image}`} sx={{ width: 100, height: 100, borderRadius: '50%' }}/>
+                        <CardMedia component="img" image={`https://fam-feast-api.vercel.app/upload/${recipe.image}`} sx={{ width: 100, height: 100, borderRadius: '50%' }}/>
                         <CardContent >
                            <Typography  textAlign="center"fontFamily='Fredoka One, sans-serif' variant="h5">{recipe.name}</Typography>
                         </CardContent>

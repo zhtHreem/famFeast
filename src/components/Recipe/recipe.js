@@ -68,10 +68,11 @@ function Recipe(){
                 allowOutsideClick: false,
                 didOpen: () => {
                     Swal.showLoading();
+                    
                 }
             });
           try {
-            const response = await axios.get(`http://localhost:5000/api/recipes/${search}`); //http://localhost:5000/api/recipes/${recipeId}
+            const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/${search}`); //https://fam-feast-api.vercel.app/api/recipes/${recipeId}
             setRecipe(response.data);
             Swal.close(); 
             
@@ -124,14 +125,19 @@ const handleReplyIcon=()=>{
           
         <Grid  direction="row" p={3} display={"flex"}>      
           <Card sx={{maxWidth: 345,backgroundColor:"black",borderStyle:"groove"}} >
-            <CardMedia component="img" image={`http://localhost:5000/upload/${recipe.image}`} sx={{height:300}}>
+            <CardMedia component="img" image={`https://fam-feast-api.vercel.app/upload/${recipe.image}`} sx={{height:300}}>
                 
             </CardMedia>
            </Card>
-              <CardContent sx={{maxWidth: 500,backgroundColor:"#1B1212"}}>
+              <CardContent sx={{maxWidth: 500,backgroundColor:"#1B1212",position:"relative"}}>
+                
                 <Typography variant="h4"  sx={{color:"white"}}>{recipe.name}</Typography>
                 <Typography variant="body"  sx={{color:"white"}}>{recipe.description}</Typography>
+                
               </CardContent>
+              
+              
+              
         </Grid>  
 
          <Box p={3} >

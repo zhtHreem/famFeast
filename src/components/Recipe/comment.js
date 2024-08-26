@@ -86,7 +86,7 @@ const CommentSection = () => {
         // Fetch comments from the server when the component mounts
         const fetchComments = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/comments');
+                const response = await axios.get('https://fam-feast-api.vercel.app/api/comments');
                 setComments(response.data);
             } catch (err) {
                 console.error('Failed to fetch comments:', err);
@@ -98,7 +98,7 @@ const CommentSection = () => {
 
     const addComment = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/api/comments', {
+            const response = await axios.post('https://fam-feast-api.vercel.app/api/comments', {
                 name: commenterName,
                 text: newComment
             });
@@ -113,7 +113,7 @@ const CommentSection = () => {
 
     const addReply = async (commentId, text, name) => {
         try {
-            const response = await axios.post(`http://localhost:5000/api/comments/${commentId}/replies`, {
+            const response = await axios.post(`https://fam-feast-api.vercel.app/api/comments/${commentId}/replies`, {
                 name,
                 text
             });

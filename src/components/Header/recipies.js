@@ -18,7 +18,7 @@ export default function Recipes(){
     // Fetch recipes from the API
     const fetchRecipes = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/recipes');
+        const response = await axios.get('https://fam-feast-api.vercel.app/api/recipes');
         setRecipes(response.data);
       } catch (err) {
         console.error('Failed to fetch recipes:', err);
@@ -58,7 +58,7 @@ export default function Recipes(){
           <Grid  item xs={12} sm={6} md={4} zIndex={3}  key={recipe.id}>
             <Link to={`/recipe/${recipe._id}`} style={{ textDecoration: 'none' }}> 
             <Card  sx={{maxWidth: 345,backgroundColor:"#1B1212"  , borderRadius: '16px'}}>
-              <CardMedia component="img" image={`http://localhost:5000/upload/${recipe.image}`} sx={{height:300,objectFit:'fill'}}/>
+              <CardMedia component="img" image={`https://fam-feast-api.vercel.app/upload/${recipe.image}`} sx={{height:300,objectFit:'fill'}}/>
                <CardContent >
                  <Typography color="white" textAlign="center"fontFamily='Fredoka One, sans-serif' variant="h5">{recipe.name}</Typography>
                </CardContent>

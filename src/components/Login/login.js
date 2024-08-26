@@ -10,7 +10,7 @@ import { useLogin } from "./logincontext";
 import Navbar from "../Header/navbar";
 import axios from 'axios';
 
-const baseURL = 'http://localhost:5000/api';
+const baseURL = 'https://fam-feast-api.vercel.app/api';
 
 function Login({ setLogin }){
      const navigate = useNavigate();
@@ -24,7 +24,7 @@ function Login({ setLogin }){
 
      const handleLogin = async () => {
         try {
-          const response = await axios.post('http://localhost:5000/api/users/login', {
+          const response = await axios.post('https://fam-feast-api.vercel.app/api/users/login', {
             email,
             password
           });
@@ -79,7 +79,7 @@ function Login({ setLogin }){
 
       const handleSignup = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/api/users', {
+            const response = await axios.post('https://fam-feast-api.vercel.app/api/users', {
                 username,
                 email,
                 password
