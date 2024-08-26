@@ -24,7 +24,7 @@ const recipes = [
     { id: 5, image: require("../../images/Bir.png"), title: 'Biryani' },
     { id: 6, image: require("../../images/Bir.png"), title: 'Biryani' },
   ];*/
-const recipeCount = recipes.length ;
+const recipeCount = 0 ;
 const displays=[{name:'Recipe Count',count:recipeCount},{name:'Likes',count:1},{name:'lsaa',count:0}]
   
 function Profile(){
