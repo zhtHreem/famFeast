@@ -2,6 +2,7 @@
 import express from 'express';
 import upload from '../multer.js';
 import Recipe from './schema.js';
+import FormData from 'form-data';
 const router = express.Router();
 
 // Create a new recipe
@@ -9,11 +10,29 @@ router.post('/recipes',upload.single('image'), async (req, res) => {
   try {
     console.log("Request Body:", req.body);
     console.log("Uploaded File:", req.file.filename);
-
+    console.log("Uploaded File:", req.file);
     const { user, name, description ,ingredients,directions} = req.body;   
-    const image = req.file.filename ;
-  
-    const newRecipe = new Recipe({user, name, description, ingredients, directions,  image  });
+   // const image = req.file.filename ;
+   const image = req.file ;
+   if (!image) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+        // Prepare form data for ImgBB API
+        const formData = new FormData();
+        formData.append('key', 'eb85fa9c85941a9e28e8f8e25311b624'); // Replace with your ImgBB API key
+        formData.append('image', image.buffer, {
+          filename: `${Date.now()}-${image.originalname}`,
+          contentType: image.mimetype
+        });
+    
+        // Upload image to ImgBB
+        const imgBBResponse = await axios.post('https://api.imgbb.com/1/upload', formData, {
+          headers: formData.getHeaders()
+        });
+    
+        const imageUrl = imgBBResponse.data.data.url; // Image URL from ImgBB
+    const newRecipe = new Recipe({user, name, description, ingredients, directions,  imageURL  });
     const savedRecipe = await newRecipe.save();
     console.log("savedRecipe",savedRecipe);
     res.status(201).json(savedRecipe);
