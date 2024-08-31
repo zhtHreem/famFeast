@@ -33,7 +33,7 @@ router.post('/recipes',upload.single('image'), async (req, res) => {
         });
     
         const imageUrl = imgBBResponse.data.data.url; // Image URL from ImgBB
-    const newRecipe = new Recipe({user, name, description, ingredients, directions,  imageURL  });
+    const newRecipe = new Recipe({user, name, description, ingredients, directions,  imageUrl  });
     const savedRecipe = await newRecipe.save();
     console.log("savedRecipe",savedRecipe);
     res.status(201).json(savedRecipe);
