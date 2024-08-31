@@ -4,6 +4,7 @@ import upload from '../multer.js';
 import Recipe from './schema.js';
 import FormData from 'form-data';
 const router = express.Router();
+import axios from 'axios';
 
 // Create a new recipe
 router.post('/recipes',upload.single('image'), async (req, res) => {
