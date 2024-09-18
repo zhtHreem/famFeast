@@ -14,13 +14,16 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 connectDB();
-app.use(cors(
-  {
-    origin:["https://fam-feast-frontend.vercel.app"],
-    methods:["POST","GET","PUT","DELETE"],
-    credentials:true
-  }
-));
+// Apply CORS middleware globally for all routes
+app.use(cors({
+  origin: "https://fam-feast-frontend.vercel.app",
+  methods: ["POST", "GET", "PUT", "DELETE"],
+  credentials: true
+}));
+
+// Handle preflight requests
+app.options('*', cors());
+
 app.use(express.json()); 
 
 const __filename = fileURLToPath(import.meta.url);
