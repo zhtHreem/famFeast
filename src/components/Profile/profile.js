@@ -141,10 +141,11 @@ if (!user) {
            <Grid container  justifyContent="center" spacing={3} p={{sx:4,sm:8}} >
            
              { recipes.map(recipe=>(
-                <Grid component={Link}  href="/recipe" item xs={12} sm={6} md={4} zIndex={3} p={4} key={recipe.id}>
+                <Grid component={Link}  href={`/recipe/${recipe._id}`} item xs={12} sm={6} md={4} zIndex={3} p={4} key={recipe.id}>
+                 
                     <Card  sx={{maxWidth: 345  ,backgroundColor:"#FFFFF0" ,borderRadius: '16px',display:"flex",alignItems:"center",justifyContent:"center"}} >
 
-                        <CardMedia component="img" image={`https://fam-feast-api.vercel.app/upload/${recipe.image}`} sx={{ width: 100, height: 100, borderRadius: '50%' }}/>
+                        <CardMedia component="img" image={recipe.image} sx={{ width: 100, height: 100, borderRadius: '50%' }}/>
                         <CardContent >
                            <Typography  textAlign="center"fontFamily='Fredoka One, sans-serif' variant="h5">{recipe.name}</Typography>
                         </CardContent>
