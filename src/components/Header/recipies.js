@@ -97,7 +97,7 @@ export default function Recipes(){
           <img src="http://www.pngmart.com/files/1/Realistic-Autumn-Fall-Leaves-PNG.png" height="75px" width="75px" alt="leaf" />
         </Leaf>
         <Leaf left={90} delay="-4s">
-          <img src="http://cdn.clipart-db.ru/rastr/autumn_leaves_025.png" height="75px" width="75px" alt="leaf" />
+          <img src="http://www.pngmart.com/files/1/Green-Leaves-PNG-File.png" height="35px" width="35px" alt="leaf" />
         </Leaf>
       </LeafContainer>
 
@@ -113,14 +113,14 @@ export default function Recipes(){
        
         <Typography textAlign="center" color={"white"} variant="h2"  paddingBottom={7} zIndex={3}>Find Your Recipe</Typography>
 
-        <Grid container sx={{ backgroundColor: 'black' }} justifyContent="center" spacing={3} px={12}  paddingRight={3} paddingBottom={4}>
+        <Grid container sx={{ backgroundColor: 'black' }} justifyContent="center" spacing={3} px={{xs:8,sm:12}}   paddingBottom={4}>
           
-          { recipes.map(recipe=>(
+          { recipes.slice(0, 6).map(recipe=>(
            
           <Grid  item xs={12} sm={6} md={4} zIndex={3}  key={recipe.id}>
             <Link to={`/recipe/${recipe._id}`} style={{ textDecoration: 'none' }}> 
-            <Card  sx={{maxWidth: 345,backgroundColor:"#1B1212"  , borderRadius: '16px'}}>
-              <CardMedia component="img" image={`https://fam-feast-api.vercel.app/upload/${recipe.image}`} sx={{height:300,objectFit:'fill'}}/>
+            <Card  sx={{backgroundColor:"#1B1212"  , borderRadius: '16px'}}>
+              <CardMedia component="img" image={recipe.image} sx={{height:300,width:"100%",objectFit:'fill'}}/>
                <CardContent >
                  <Typography color="white" textAlign="center"fontFamily='Fredoka One, sans-serif' variant="h5">{recipe.name}</Typography>
                </CardContent>

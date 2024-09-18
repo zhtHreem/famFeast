@@ -92,7 +92,7 @@ const Header = () => {
           <img src="http://www.pngmart.com/files/1/Realistic-Autumn-Fall-Leaves-PNG.png" height="75px" width="75px" alt="leaf" />
         </Leaf>
         <Leaf left={90} delay="-4s">
-          <img src="http://cdn.clipart-db.ru/rastr/autumn_leaves_025.png" height="75px" width="75px" alt="leaf" />
+          <img src="http://www.pngmart.com/files/1/Green-Leaves-PNG-File.png" height="25px" width="25px" alt="leaf" />
         </Leaf>
       </LeafContainer>
 

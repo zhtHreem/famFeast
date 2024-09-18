@@ -71,9 +71,10 @@ function Recipe(){
                     
                 }
             });
-          try {
-            const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/${search}`); //https://fam-feast-api.vercel.app/api/recipes/${recipeId}
-            setRecipe(response.data);
+          try { 
+      //      const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/${search}`); //https://fam-feast-api.vercel.app/api/recipes/${recipeId}
+           const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/${search}`);
+           setRecipe(response.data);
             Swal.close(); 
             
           } catch (error) {
@@ -86,12 +87,12 @@ function Recipe(){
     
       console.log("fetched recipe,",recipe)
        if (!recipe) return null; 
-   const handleIngradients=()=>{
+   const handleIngredients=()=>{
      setIngredients(prevState => !prevState);
    }
 
    
-   const handleIngradientCheck=(index)=>{
+   const handleIngredientCheck=(index)=>{
     setIngredientCheck(prevState => ({
         ...prevState,
         [index]:!prevState[index]
@@ -125,7 +126,7 @@ const handleReplyIcon=()=>{
           
         <Grid  direction="row" p={3} display={"flex"}>      
           <Card sx={{maxWidth: 345,backgroundColor:"black",borderStyle:"groove"}} >
-            <CardMedia component="img" image={`https://fam-feast-api.vercel.app/upload/${recipe.image}`} sx={{height:300}}>
+            <CardMedia component="img" image={recipe.image} sx={{height:300}}>
                 
             </CardMedia>
            </Card>
@@ -142,13 +143,13 @@ const handleReplyIcon=()=>{
 
          <Box p={3} >
           
-          <Button onClick={handleIngradients} sx={{width:"100%",justifyContent: "space-between",color:"white", borderBottom: "1px outset white", }}  endIcon={<KeyboardArrowDown />}>Ingredients</Button>
+          <Button onClick={handleIngredients} sx={{width:"100%",justifyContent: "space-between",color:"white", borderBottom: "1px outset white", }}  endIcon={<KeyboardArrowDown />}>Ingredients</Button>
           { ingredients && (
             <Box sx={{background:"black"}}>
                 <List>
                     {recipe.ingredients.map((ingredient,index)=>(
                        
-                        <ListItemButton key={index} onClick={()=>handleIngradientCheck(index)}>
+                        <ListItemButton key={index} onClick={()=>handleIngredientCheck(index)}>
                             <ListItemIcon>
                             { checkIngredients[index] ? (
                               <CheckCircle sx={{color:"white"}}/>

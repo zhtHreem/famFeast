@@ -50,7 +50,7 @@ const Comment = ({ comment, addReply }) => {
                     <ThumbUpOffAltIcon onClick={handleLike} />
                 )}
 
-                <ChatBubbleIcon onClick={handleReplyIcon} />
+                {/*<ChatBubbleIcon onClick={handleReplyIcon} />*/}
             </Stack>
 
             {comment.replies && Array.isArray(comment.replies) && comment.replies.map(reply => (
