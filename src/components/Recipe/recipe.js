@@ -124,19 +124,21 @@ const handleReplyIcon=()=>{
      <Box  p={5} sx={{height:"100%",background:"black"}} >
        
           
-        <Grid container direction="row" p={3} display="flex" spacing={2}>
-  <Grid item xs={12} sm={6}>
-    <Card sx={{ minWidth: 300, maxWidth: 345, backgroundColor: "black", borderStyle: "groove" }}>
-      <CardMedia component="img" image={recipe.image} sx={{ height: 300 }} />
-    </Card>
-  </Grid>
-  <Grid item xs={12} sm={6} container alignItems="flex-end" direction="column">
-    <CardContent sx={{ minWidth: 300, maxWidth: 500, backgroundColor: "#1B1212", position: "relative" }}>
-      <Typography variant="h4" sx={{ color: "white" }}>{recipe.name}</Typography>
-      <Typography variant="body1" sx={{ color: "white" }}>{recipe.description}</Typography>
-    </CardContent>
-  </Grid>
-</Grid>
+        <Box  p={3} display={"flex"} sx={{flexDirection: { xs: 'column', sm: 'row' }}}>      
+          <Card sx={{minWidth:300,maxWidth: 345,backgroundColor:"black",borderStyle:"groove"}} >
+            <CardMedia component="img" image={recipe.image} sx={{height:300}}>
+                
+            </CardMedia>
+           </Card>
+              <CardContent sx={{minWidth:300,maxWidth: {xs:345,sm:500},backgroundColor:"#1B1212",position:"relative"}}>
+                
+                <Typography variant="h4"  sx={{color:"white"}}>{recipe.name}</Typography>
+                <Typography variant="body"  sx={{color:"white"}}>{recipe.description}</Typography>
+                
+              </CardContent>
+          
+              
+        </Box>  
 
          <Box p={3} >
           
