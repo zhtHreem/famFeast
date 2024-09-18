@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
-import { Box, Typography,Grid,Stack,Card,CardContent,CardMedia } from "@mui/material";
+import { Box, Typography,Grid,Stack,Card,CardContent,CardMedia,styled, Container, } from "@mui/material";
 import { Link } from 'react-router-dom';
 
+import { keyframes } from '@emotion/react';
 /*
 const recipes = [
     { id: 1, image: require("../../images/Bir.png"), title: 'Biryani' },
@@ -12,6 +13,48 @@ const recipes = [
     { id: 5, image: require("../../images/Bir.png"), title: 'Biryani' },
     { id: 6, image: require("../../images/Bir.png"), title: 'Biryani' },
   ];*/
+
+  const fall = keyframes`
+  0% {
+    opacity: 1;
+    top: -10%;
+    transform: translateX(20px) rotate(0deg);
+  }
+  20% {
+    opacity: 0.8;
+    transform: translateX(-20px) rotate(45deg);
+  }
+  40% {
+    transform: translateX(-20px) rotate(90deg);
+  }
+  60% {
+    transform: translateX(-20px) rotate(135deg);
+  }
+  80% {
+    transform: translateX(-20px) rotate(180deg);
+  }
+  100% {
+    top: 110%;
+    transform: translateX(-20px) rotate(225deg);
+  }
+`;
+
+// Styled leaf container for animation
+const LeafContainer = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  width: '100%',
+  height: '100%',
+  top: 0,
+  left: 0,
+}));
+
+// Individual leaf styled for each animation
+const Leaf = styled(Box)(({ delay, left }) => ({
+  position: 'absolute',
+  left: `${left}%`,
+  animation: `${fall} 15s linear infinite`,
+  animationDelay: delay,
+}));
 export default function Recipes(){
   const [recipes, setRecipes] = useState([]);
 
@@ -34,11 +77,29 @@ export default function Recipes(){
 
      <Stack  position="relative" sx={{ backgroundColor: 'black', justifyContent: "center" ,alignItems:"center" ,overflow: 'hidden' }  }p={2}  >
 
-       <Box component="img" src={require("../../images/black.png")}sx={{  width:{xs:'90%',lg: '90%'}, height:{xs:'110%'},  opacity: 0.2,  objectFit: 'cover', position: 'absolute',left:{lg:"10%"},zIndex: 1,transform: 'rotate(180deg)', userSelect: 'none', pointerEvents: 'none'}}/>
-       <Box component="img" src={require("../../images/black.png")}sx={{  width:{xs:'90%',lg: '90%'}, height:{xs:'110%'},  opacity: 0.2,  objectFit: 'cover', position: 'absolute',left:{lg:"10%"},zIndex: 1, userSelect: 'none', pointerEvents: 'none'}}/>
-    
-       <Box component="img" src={require("../../images/black.png")}sx={{  width:{xs:'90%',lg: '90%'}, height:{xs:'110%'},  opacity: 0.2,  objectFit: 'cover', position: 'absolute',right:{lg:"10%"},zIndex: 1,transform: 'rotate(0deg)', userSelect: 'none', pointerEvents: 'none'}}/>
-       <Box component="img" src={require("../../images/black.png")}sx={{  width:{xs:'90%',lg: '90%'}, height:{xs:'110%'},  opacity: 0.2,  objectFit: 'cover', position: 'absolute',right:{lg:"10%"},zIndex: 1,transform: 'rotate(180deg)', userSelect: 'none', pointerEvents: 'none'}}/>
+       <LeafContainer>
+        <Leaf left={20} delay="-2s">
+          <img src="http://www.pngmart.com/files/1/Fall-Autumn-Leaves-Transparent-PNG.png" height="75px" width="75px" alt="leaf" />
+        </Leaf>
+        <Leaf left={70} delay="-4s">
+          <img src="http://www.pngmart.com/files/1/Autumn-Fall-Leaves-Pictures-Collage-PNG.png" height="75px" width="75px" alt="leaf" />
+        </Leaf>
+        <Leaf left={10} delay="-7s">
+          <img src="http://www.pngmart.com/files/1/Autumn-Fall-Leaves-Clip-Art-PNG.png" height="75px" width="75px" alt="leaf" />
+        </Leaf>
+        <Leaf left={50} delay="-5s">
+          <img src="http://www.pngmart.com/files/1/Green-Leaves-PNG-File.png" height="75px" width="75px" alt="leaf" />
+        </Leaf>
+        <Leaf left={85} delay="-5s">
+          <img src="http://www.pngmart.com/files/1/Transparent-Autumn-Leaves-Falling-PNG.png" height="75px" width="75px" alt="leaf" />
+        </Leaf>
+        <Leaf left={15} delay="-10s">
+          <img src="http://www.pngmart.com/files/1/Realistic-Autumn-Fall-Leaves-PNG.png" height="75px" width="75px" alt="leaf" />
+        </Leaf>
+        <Leaf left={90} delay="-4s">
+          <img src="http://cdn.clipart-db.ru/rastr/autumn_leaves_025.png" height="75px" width="75px" alt="leaf" />
+        </Leaf>
+      </LeafContainer>
 
         <Box component="img" src={require("../../images/s1.png")}sx={{  width:{xs:'60%',lg: '100%'}, height:{xs:'80%',lg: '50%'},  objectFit: 'contain', position: 'absolute',bottom:{ xs:"20%" ,sm:'20%',md:"24%",lg:'55%'}, left: {xs:'64%',sm:'67%',md:'68%',lg:'35%'},zIndex: 1, transform: 'rotate(90deg)', userSelect: 'none', pointerEvents: 'none'}}/>
         <Box component="img" src={require("../../images/s1.png")}sx={{  width:{xs:'60%',lg: '100%'}, height:{xs:'80%',lg: '20%'},  objectFit: 'contain', position: 'absolute',bottom:{ xs:"20%" ,sm:'20%',md:"24%",lg:'40%'}, right: {xs:'64%',sm:'67%',md:'68%',lg:'45%'},zIndex: 1, transform: 'rotate(270deg)', userSelect: 'none', pointerEvents: 'none'}}/>
