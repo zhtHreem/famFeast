@@ -3,8 +3,9 @@ import express from 'express';
 import upload from '../multer.js';
 import Recipe from './schema.js';
 import FormData from 'form-data';
-const router = express.Router();
 import axios from 'axios';
+const router = express.Router();
+
 
 // Create a new recipe
 router.post('/recipes',upload.single('image'), async (req, res) => {
@@ -29,11 +30,13 @@ router.post('/recipes',upload.single('image'), async (req, res) => {
     
         // Upload image to ImgBB
         const imgBBResponse = await axios.post('https://api.imgbb.com/1/upload', formData, {
+          
           headers: formData.getHeaders()
         });
     
         const imageUrl = imgBBResponse.data.data.url; // Image URL from ImgBB
-    const newRecipe = new Recipe({user, name, description, ingredients, directions,  imageUrl  });
+        console.log(imageUrl)
+    const newRecipe = new Recipe({user, name, description, ingredients, directions, image: imageUrl  });
     const savedRecipe = await newRecipe.save();
     console.log("savedRecipe",savedRecipe);
     res.status(201).json(savedRecipe);

@@ -80,7 +80,9 @@ function Login({ setLogin }){
 
       const handleSignup = async () => {
         try {
-            const response = await axios.post('https://fam-feast-api.vercel.app/api/users', {
+           // const response = await axios.post('https://fam-feast-api.vercel.app/api/users', {
+              
+             const response = await axios.post('https://fam-feast-api.vercel.app/api/users', { 
                 username,
                 email,
                 password
