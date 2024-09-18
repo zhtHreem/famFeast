@@ -42,7 +42,7 @@ export default function Navbar() {
 
   return (
     <>
-      <Box position="relative" sx={{ backgroundColor: "black", py: 2, px: 3, overflow: 'hidden' }}>
+      <Box position="relative" sx={{ backgroundColor: "black", py: 2, px:{xs:1 ,sm:3}, overflow: 'hidden' }}>
         {/* Background images */}
         <Box component="img" src={require("../../images/black.png")} sx={{ width: { xs: '90%', lg: '90%' }, height: { xs: '110%' }, opacity: 0.2, objectFit: 'cover', position: 'absolute', left: { lg: "10%" }, zIndex: 1, transform: 'rotate(180deg)', userSelect: 'none', pointerEvents: 'none' }} />
         <Box component="img" src={require("../../images/black.png")} sx={{ width: { xs: '90%', lg: '90%' }, height: { xs: '110%' }, opacity: 0.2, objectFit: 'cover', position: 'absolute', right: { lg: "10%" }, zIndex: 1, userSelect: 'none', pointerEvents: 'none' }} />
@@ -59,7 +59,7 @@ export default function Navbar() {
             </IconButton>
             <Typography color="white" fontWeight="Bold" variant="h5">FamFeast</Typography>
           </Stack>
-          <Stack direction="row" spacing={2} alignItems="center">
+          <Stack direction="row" spacing={{xs:1,sm:2}} alignItems="center">
             <Link href="/" underline="none" sx={{ color: "white" }} fontWeight="bold">Home</Link>
             {isAuthenticated && (
               <Link href="/profile" underline="none" sx={{ color: "white" }} fontWeight="bold">Profile</Link>
