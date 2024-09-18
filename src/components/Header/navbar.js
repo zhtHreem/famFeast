@@ -59,7 +59,7 @@ export default function Navbar() {
             </IconButton>
             <Typography color="white" fontWeight="Bold" variant="h5">FamFeast</Typography>
           </Stack>
-          <Stack direction="row" spacing={{xs:0,sm:2}} alignItems="center">
+          <Stack direction="row" spacing={{xs:0.5,sm:2}} alignItems="center">
             <Link href="/" underline="none" sx={{ color: "white" }} fontWeight="bold">Home</Link>
             {isAuthenticated && (
               <Link href="/profile" underline="none" sx={{ color: "white" }} fontWeight="bold">Profile</Link>

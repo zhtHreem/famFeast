@@ -130,7 +130,7 @@ const handleReplyIcon=()=>{
                 
             </CardMedia>
            </Card>
-              <CardContent sx={{minWidth:300,maxWidth: {xs:320,sm:500},backgroundColor:"#1B1212",position:"relative"}}>
+              <CardContent sx={{minWidth:270,maxWidth: {xs:320,sm:500},backgroundColor:"#1B1212",position:"relative"}}>
                 
                 <Typography variant="h4"  sx={{color:"white"}}>{recipe.name}</Typography>
                 <Typography variant="body"  sx={{color:"white"}}>{recipe.description}</Typography>
