@@ -2,21 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Layout from '../layout/layout';
-import { Typography, Grid, Card, CardMedia, CardContent } from '@mui/material';
-
+import { Typography,Box, Grid, Card, CardMedia, CardContent } from '@mui/material';
+import Login from '../Login/login';
+import { useLogin } from '../Login/logincontext';
 const SearchResults = () => {
   const { query } = useParams(); // Extract the query from URL params
   console.log("param:", query);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { isLoginOpen, setLoginOpen } = useLogin();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         // Replace with your actual API endpoint
-        const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/search?recipe=${query}`);
+       // const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/search?recipe=${query}`);
+       const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/search?recipe=${query}`);
+       
         console.log("response:", response);
         setResults(response.data);
       } catch (error) {
@@ -34,16 +38,24 @@ const SearchResults = () => {
 
   return (
     <Layout>
+
+    {isLoginOpen && (
+        <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 5 }}>
+          <Login setLogin={setLoginOpen} />
+        </Box>
+      )}   
+
+
       <Typography textAlign="center"  variant="h2" padding={7}  zIndex={3}>  Search Results  </Typography>
-      <Grid container  justifyContent="center" spacing={3} px={12} paddingRight={3} paddingBottom={4}>
+      <Grid container  justifyContent="center" spacing={3} px={12}  paddingBottom={4}>
         {results.map(recipe => (
           <Grid item xs={12} sm={6} md={4} zIndex={3} key={recipe._id}>
             <Link to={`/recipe/${recipe._id}`} style={{ textDecoration: 'none' }}>
-              <Card sx={{ maxWidth: 345, backgroundColor: "#1B1212", borderRadius: '16px' }}>
+              <Card sx={{ backgroundColor: "#1B1212", borderRadius: '16px' }}>
                 <CardMedia
                   component="img"
-                  image={`https://fam-feast-api.vercel.app/upload/${recipe.image}`}
-                  sx={{ height: 300, objectFit: 'fill' }}
+                  image={recipe.image}
+                  sx={{ height: 300,width:"100%", objectFit: 'fill' }}
                 />
                 <CardContent>
                   <Typography color="white" textAlign="center" fontFamily='Fredoka One, sans-serif' variant="h5">
