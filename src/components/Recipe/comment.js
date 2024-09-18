@@ -50,7 +50,7 @@ const Comment = ({ comment, addReply }) => {
                     <ThumbUpOffAltIcon onClick={handleLike} />
                 )}
 
-                {/*<ChatBubbleIcon onClick={handleReplyIcon} />*/}
+                <ChatBubbleIcon onClick={handleReplyIcon} />
             </Stack>
 
             {comment.replies && Array.isArray(comment.replies) && comment.replies.map(reply => (
@@ -60,7 +60,7 @@ const Comment = ({ comment, addReply }) => {
             {replyIcon && (
                 <Box mt={2}>
                     <TextField label="Reply" value={replyText} onChange={(e) => setReplyText(e.target.value)} multiline rows={4} sx={{ width: "100%", border: "1px ridge white" }} />
-                    <Button onClick={handleAddReply} sx={{ height: "56px", backgroundColor: "orange", color: "white", border: "1px ridge white", marginTop: 2 }}>
+                    <Button /*onClick={handleAddReply}*/ sx={{ height: "56px", backgroundColor: "orange", color: "white", border: "1px ridge white", marginTop: 2 }}>
                         Reply
                     </Button>
                 </Box>
