@@ -42,7 +42,7 @@ function  Footer(){
     <Stack direction="row"  justifyContent="space-around"  paddingTop={7} paddingBottom={4} sx={{zIndex:2,position: 'relative'}}>
         
         <Stack direction="column" alignItems="center">
-            <Typography variant="h4"  sx={{  fontSize: { xs: '1.5rem',sm: '2.25rem',md: '2.75rem',lg: '3rem', xl: '3.5rem' },   color: 'white',  }}>Quick links</Typography>
+            <Typography variant="h4"  sx={{ textAlign:"center", fontSize: { xs: '1.5rem',sm: '2.25rem',md: '2.75rem',lg: '3rem', xl: '3.5rem' },   color: 'white',  }}>Quick links</Typography>
             <Typography variant="body2" style={{color:"white"}}sx={{  fontSize: { xs: '0.75rem',sm: '1.25rem',lg: '1.75rem'}}}>Home</Typography>
             <Typography variant="body2" style={{color:"white"}}sx={{  fontSize: { xs: '0.75rem',sm: '1.25rem',lg: '1.75rem'}}}>Recipes</Typography>
             <Typography variant="body2" style={{color:"white"}}sx={{  fontSize: { xs: '0.75rem',sm: '1.25rem',lg: '1.75rem'}}}>About Us</Typography>
@@ -54,10 +54,7 @@ function  Footer(){
             <Typography variant="body2" style={{color:"white"}}></Typography>
 
         </Stack>
-        <Stack direction="column"  alignItems="center" paddingTop={-4}>
-            <Typography variant="h4" style={{color:"white"}}>---------</Typography>
-            <Penguin/>
-        </Stack>
+        
 
     </Stack>
     <Typography variant="body2"  paddingTop={{xs:4,md:6}} style={{ color: 'white', textAlign: 'center' }}>
