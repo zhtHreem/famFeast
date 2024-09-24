@@ -82,7 +82,7 @@ const CommentSection = ({ recipeId }) => {
     useEffect(() => {
         const fetchComments = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/comments?recipeId=${recipeId}`); 
+                const response = await axios.get(`https://fam-feast-api.vercel.app/api/comments?recipeId=${recipeId}`); 
                 setComments(response.data);
             } catch (err) {
                 console.error('Failed to fetch comments:', err);
@@ -94,7 +94,7 @@ const CommentSection = ({ recipeId }) => {
 
     const addComment = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/api/comments', {
+            const response = await axios.post('https://fam-feast-api.vercel.app/api/comments', {
                 name: commenterName,
                 text: newComment,
                 recipeId 
@@ -109,7 +109,7 @@ const CommentSection = ({ recipeId }) => {
 
     const addReply = async (commentId, text, name) => {
         try {
-            const response = await axios.post(`http://localhost:5000/api/comments/${commentId}/replies`, {
+            const response = await axios.post(`https://fam-feast-api.vercel.app/api/comments/${commentId}/replies`, {
                 name:commenterName,
                 text
             });
