@@ -60,7 +60,7 @@ function Profile(){
         }
     });
       try {
-          const response = await axios.get(`http://localhost:5000/api/users/${userId}`);
+          const response = await axios.get(`https://fam-feast-api.vercel.app/api/users/${userId}`);
           setUser(response.data);
       } catch (error) {
           console.error('Error fetching user data:', error);
@@ -70,7 +70,7 @@ function Profile(){
   const fetchUserRecipes = async (userId) => {
       
     try {
-        const response = await axios.get(`http://localhost:5000/api/recipes/user/${userId}`);
+        const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/user/${userId}`);
         setRecipes(response.data);
         
     } catch (error) {
