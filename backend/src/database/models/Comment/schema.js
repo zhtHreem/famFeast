@@ -31,6 +31,11 @@ const commentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  recipeId: { // Add this line
+    type: mongoose.Schema.Types.ObjectId, // Assuming recipe IDs are also ObjectId
+    required: true, // You can set this to true to ensure every comment must belong to a recipe
+    ref: 'Recipe', // Reference to the Recipe model (adjust based on your actual model name)
+  },
 });
 
 // Create and export models

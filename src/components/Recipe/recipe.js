@@ -73,7 +73,7 @@ function Recipe(){
             });
           try { 
       //      const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/${search}`); //https://fam-feast-api.vercel.app/api/recipes/${recipeId}
-           const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/${search}`);
+           const response = await axios.get(`http://localhost:5000/api/recipes/${search}`);
            setRecipe(response.data);
             Swal.close(); 
             
@@ -220,7 +220,7 @@ const handleReplyIcon=()=>{
     
 
       {replyIcon &&(
-        <Comments/>
+        <Comments recipeId={search}/>
       )}  
 
       

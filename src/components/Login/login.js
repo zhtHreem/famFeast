@@ -24,7 +24,7 @@ function Login({ setLogin }){
 
      const handleLogin = async () => {
         try {
-          const response = await axios.post('https://fam-feast-api.vercel.app/api/users/login', {
+          const response = await axios.post('http://localhost:5000/api/users/login', {
             email,
             password
           });

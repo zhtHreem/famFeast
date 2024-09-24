@@ -1,12 +1,14 @@
 import express from 'express';
+import Comment from './schema.js';
 const router = express.Router();
 
-import Comment from './schema.js'; // Ensure this imports the updated schema
 
 // Get all comments
+// Get comments for a specific recipe
 router.get('/comments', async (req, res) => {
+  const { recipeId } = req.query; // Get recipeId from query params
   try {
-    const comments = await Comment.find();
+    const comments = await Comment.find({ recipeId }); // Fetch comments for the specific recipe
     res.json(comments);
   } catch (err) {
     console.error('Error fetching comments:', err);
@@ -14,15 +16,14 @@ router.get('/comments', async (req, res) => {
   }
 });
 
+
+
 // Post a new comment
 router.post('/comments', async (req, res) => {
-  const { name, text } = req.body;
-  console.log("Request Body:", req.body);
+  const { name, text, recipeId } = req.body; // Include recipeId in the request body
   try {
-    const newComment = new Comment({ name, text, replies: [] });
-    console.log("before saving", newComment);
+    const newComment = new Comment({ name, text, replies: [], recipeId }); // Add recipeId
     await newComment.save();
-    console.log("after",newComment);
     res.status(201).json(newComment);
   } catch (err) {
     console.error('Failed to add comment:', err);
@@ -30,9 +31,14 @@ router.post('/comments', async (req, res) => {
   }
 });
 
+
 // Post a reply to a comment
 router.post('/comments/:id/replies', async (req, res) => {
   console.log("Request Body:", req.body);
+  // In your backend
+console.log("Reply Data:", req.body); // Check what data is coming in
+console.log("Comment ID:",req.params); // Log the comment ID
+
   const { id } = req.params;
   const { name, text } = req.body;
   try {
