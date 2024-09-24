@@ -15,6 +15,7 @@ const user=[{
    // joiningDate:Date.now(),
 
 }]
+
 /*
 const recipes = [
     { id: 1, image: require("../../images/Bir.png"), title: 'Biryani' },
@@ -25,7 +26,7 @@ const recipes = [
     { id: 6, image: require("../../images/Bir.png"), title: 'Biryani' },
   ];*/
 const recipeCount = 0 ;
-const displays=[{name:'Recipe Count',count:recipeCount},{name:'Likes',count:1},{name:'lsaa',count:0}]
+const displays=[{name:'Recipe Count',count:recipeCount},{name:'Likes',count:1},{name:'Favorite',count:0}]
   
 function Profile(){
     const [user, setUser] = useState(null);
@@ -33,7 +34,7 @@ function Profile(){
     //const { name, joiningDate } = user[0];
     const [addrecipe,setAddRecipe]=useState(false);
     const { isLoginOpen, setLoginOpen } = useLogin();
-
+    const currentDate = new Date().toLocaleDateString();
    
 
     useEffect(() => {
@@ -59,7 +60,7 @@ function Profile(){
         }
     });
       try {
-          const response = await axios.get(`https://fam-feast-api.vercel.app/api/users/${userId}`);
+          const response = await axios.get(`http://localhost:5000/api/users/${userId}`);
           setUser(response.data);
       } catch (error) {
           console.error('Error fetching user data:', error);
@@ -69,7 +70,7 @@ function Profile(){
   const fetchUserRecipes = async (userId) => {
       
     try {
-        const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/user/${userId}`);
+        const response = await axios.get(`http://localhost:5000/api/recipes/user/${userId}`);
         setRecipes(response.data);
         
     } catch (error) {
@@ -110,7 +111,7 @@ if (!user) {
          
            <Box component="img" src={require("../../images/useravatar.png")}  alt="User Avatar"  sx={{ width: 100, height: 100, borderRadius: '50%' }} />
            <Typography variant="h3">{user.username}</Typography>
-           <Typography variant="body1">date</Typography>
+           <Typography variant="body1">{currentDate}</Typography>
            <IconButton onClick={handleNewRecipe} sx={{color:"orange",fontWeight:"bold"}}>
               <ArrowRightIcon/> Add recipe                 
            </IconButton>
@@ -123,7 +124,7 @@ if (!user) {
             {displays.map(display=>
             <Paper elevation={8}   sx={{backgroundColor:"black",height:100,width:100,display: 'flex',flexDirection: 'column',alignItems:"center",padding:1,borderRadius:'10%',textAlign: 'center' ,justifyContent: 'space-around'}} >
                 <Typography variant="h6" color="white">{display.name}</Typography>
-                <Typography variant="body2" color="white">{display.count}</Typography>
+                <Typography variant="body2" color="white">{recipes.length}</Typography>
             </Paper>
             )}
             
