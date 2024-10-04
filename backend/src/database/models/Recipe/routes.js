@@ -1,9 +1,13 @@
 //const express = require('express');
+import mongoose from 'mongoose';
 import express from 'express';
 import upload from '../multer.js';
 import Recipe from './schema.js';
 import FormData from 'form-data';
 import axios from 'axios';
+import User from '../User/user.js';
+import dotenv from 'dotenv'; 
+dotenv.config({ path: '../../../../.env' }); 
 const router = express.Router();
 
 
@@ -22,7 +26,8 @@ router.post('/recipes',upload.single('image'), async (req, res) => {
 
         // Prepare form data for ImgBB API
         const formData = new FormData();
-        formData.append('key', 'eb85fa9c85941a9e28e8f8e25311b624'); // Replace with your ImgBB API key
+        
+        formData.append('key',process.env.IMGBB_API_KEY); 
         formData.append('image', image.buffer, {
           filename: `${Date.now()}-${image.originalname}`,
           contentType: image.mimetype
@@ -65,7 +70,7 @@ router.get('/recipes/search', async (req, res) => {
   console.log("searched recipe name:",req.query.recipe )
   try {
     
-    const recipes = await Recipe.find({ name: new RegExp(req.query.recipe, 'i') });
+    const recipes = await Recipe.find({ name: new RegExp(req.query.recipe, 'i') }).populate('user', 'username');;
     console.log("searched recipes list:",recipes)
     res.status(200).json(recipes);
   } catch (error) {
@@ -73,12 +78,25 @@ router.get('/recipes/search', async (req, res) => {
   }
 });
 
+// Separate function to update user fields in recipes (Run this once as a migration)
+async function updateRecipesUserField() {
+  const userId = '66eb4adcedc62e729c726383'; // Use the ObjectId of the user you updated
+const userRecipes = await Recipe.find({ user: new mongoose.Types.ObjectId(userId) }).populate('user', 'username');
+console.log("User's Recipes:", userRecipes);
+}
+
+// Call this update function once to migrate your data
+ //updateRecipesUserField();
 // Get recipes by user ID
 router.get('/recipes/user/:userId', async (req, res) => {
   try {
+    const userId = req.params.userId;
     // Find recipes by userId
-    console.log("idm",req.params.userId )
-    const recipes = await Recipe.find({ user: req.params.userId });
+    console.log("user id",userId )
+
+    
+    const recipes = await Recipe.find({ user: new mongoose.Types.ObjectId(userId) }).populate('user', 'username');
+  //  console.log("User's Recipes:", recipes);
     if (!recipes || recipes.length === 0) {
       return res.status(404).json({ error: 'No recipes found for this user' });
     }
@@ -92,7 +110,8 @@ router.get('/recipes/user/:userId', async (req, res) => {
 router.get('/recipes/:id', async (req, res) => {
   console.log("idm",req.params.id )
   try {
-    const recipe = await Recipe.findById(req.params.id);
+    const recipe = await Recipe.findById(req.params.id).populate('user', 'username');
+  //console.log("recipe id:",recipe)
     if (!recipe) {
       return res.status(404).json({ error: 'Recipe not found' });
     }

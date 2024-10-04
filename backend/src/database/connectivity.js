@@ -1,17 +1,18 @@
-
 import mongoose from 'mongoose';
+import dotenv from 'dotenv'; // Import dotenv
 
-const connectDB = async ()=>{
- try{
-    const mongoURI=process.env.MONGO_URI || 'mongodb+srv://admin:123@eventify.dkeujvr.mongodb.net/FamFest?retryWrites=true&w=majority&appName=eventify';
-    
+dotenv.config(); 
+
+const connectDB = async () => {
+  try {
+    const mongoURI = process.env.MONGO_URI; 
+
     await mongoose.connect(mongoURI);
     console.log('MongoDB connected...');
-} catch (error) {
-     console.error('Error connecting to MongoDB:', error.message);
-     process.exit(1); 
-}
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error.message);
+    process.exit(1);
+  }
 };
-export default connectDB; 
 
-
+export default connectDB;
