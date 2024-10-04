@@ -49,10 +49,7 @@ function Recipe(){
           try { 
       //      const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/${search}`); //https://fam-feast-api.vercel.app/api/recipes/${recipeId}
            const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/${search}`);
-<<<<<<< HEAD
-             
-=======
->>>>>>> cbb9638cd9889bdf1c0a0ca7b3cb0bf1d3e39f8b
+
            setRecipe(response.data);
             Swal.close(); 
             
