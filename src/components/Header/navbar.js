@@ -1,24 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { Stack, Link, Box,Drawer, IconButton, Typography, Button, TextField } from "@mui/material";
+import { Stack,  Box,Drawer, IconButton, Typography, Button, TextField } from "@mui/material";
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import SearchIcon from '@mui/icons-material/Search';
 import TableRowsIcon from '@mui/icons-material/TableRows';
 import { useLogin } from "../Login/logincontext";
 import { useNavigate } from "react-router-dom";
-
+import { Link } from 'react-router-dom';
 export default function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [search, setSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const[userId,setUserId]=useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const user = localStorage.getItem('user');
+   
+ 
+ useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user')); // Make sure to parse the user if it's a string
+    console.log("user lala", user);
     if (user) {
+      setUserId(user.id);
       setIsAuthenticated(true);
     }
   }, []);
+
+  
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -69,9 +76,9 @@ export default function Navbar() {
          
           </Stack>
           <Stack direction="row" spacing={{xs:1,sm:2}} alignItems="center">
-            <Link href="/" underline="none" sx={{ color: "white" }} fontWeight="bold">Home</Link>
+            <Button onClick={()=>navigate("/")}  sx={{ color: "white",textDecoration: "none",fontWeight: "bold" }} >Home</Button>
             {isAuthenticated && (
-              <Link href="/profile" underline="none" sx={{ color: "white" }} fontWeight="bold">Profile</Link>
+              <Button  onClick={() => navigate(`/profile/${userId}`)} sx={{ color: "white",textDecoration: "none" ,fontWeight: "bold"}} >Profile</Button>
             )}
 
             <IconButton size="small" onClick={() => setDrawerOpen(true)}>

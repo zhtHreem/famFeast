@@ -8,6 +8,7 @@ import Navbar from './components/Header/navbar';
 import Header from './components/Header/header';
 import Recipe from './components/Recipe/recipe';
 import Profile from './components/Profile/profile';
+import Follower from './components/Profile/follower';
 import NewRecipe from './components/Recipe/createNewRecipe';
 import Login from './components/Login/login';
 import { LoginProvider } from './components/Login/logincontext';
@@ -37,7 +38,7 @@ const router = createBrowserRouter([
     element:<SearchResults/>
   },
   {
-    path:"/profile",
+    path:"/profile/:search",
     element:<Profile/>
   },
   {
@@ -47,6 +48,9 @@ const router = createBrowserRouter([
   {
     path:"/login",
     element:<Login/>
+  },{
+    path:"/profile/:userId/follower",
+    element:<Follower/>
   }
 
 

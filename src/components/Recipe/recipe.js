@@ -1,6 +1,8 @@
 import React, { useState,useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
+
 import { Box,Card,CardMedia,CardContent, Typography, Grid,Stack, Button,IconButton, List,ListItemIcon, ListItemButton } from "@mui/material";
 import { CheckCircle } from "@mui/icons-material";
 import { KeyboardArrowDown } from "@mui/icons-material";
@@ -12,37 +14,9 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import Navbar from "../Header/navbar";
 import Footer from "../Footer/footer";
 import Swal from 'sweetalert2';
-import { Grade } from "@mui/icons-material";
 
 import Comments from "./comment";
-/*const recipes1 =[
-    {
-        id:1,
-         image: require("../../images/Bir.png"),
-          title: 'Biryani',
-          description:'Biryani is a fragrant and flavorful rice dish, originating from the Indian subcontinent, made with basmati rice, marinated meat (chicken, beef, mutton, or fish), and a blend of aromatic spices. It is often garnished with fried onions, boiled eggs, and fresh herbs, offering a rich and complex taste that is both satisfying and indulgent.' ,
-          listOfIngredients: [
-            'Basmati rice',
-            'Chicken',
-            'Yogurt',
-            'Onions',
-            'Tomatoes',
-            'Garlic',
-            'Ginger',
-            'Spices (e.g., cumin, coriander, garam masala)',
-            'Fresh herbs (e.g., cilantro, mint)',
-            'Fried onions'
-        ],
-        listOfDirections: [
-            '1. Marinate the chicken with yogurt and spices.',
-            '2. Cook the rice separately.',
-            '3. Fry onions until golden brown.',
-            '4. Layer the rice and chicken in a pot, adding fried onions in between.',
-            '5. Cook on low heat for 30 minutes.',
-            '6. Garnish with fresh herbs and serve.'
-        ]
-    }
-]*/
+
 
 function Recipe(){
   const { search } = useParams(); 
@@ -54,6 +28,7 @@ function Recipe(){
     const [replyIcon,setReplyIcon]=useState(false);
     const [commentBox,setCommentBox]=useState(false);
     const [recipe, setRecipe] = useState(null);
+    const[userid,setUserId]=useState("");
    // const { recipeId } = useParams(); 
     
     console.log("Recipe id,",search)
@@ -73,7 +48,8 @@ function Recipe(){
             });
           try { 
       //      const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/${search}`); //https://fam-feast-api.vercel.app/api/recipes/${recipeId}
-           const response = await axios.get(`http://localhost:5000/api/recipes/${search}`);
+           const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/${search}`);
+             
            setRecipe(response.data);
             Swal.close(); 
             
@@ -86,6 +62,7 @@ function Recipe(){
       }, [search]);
     
       console.log("fetched recipe,",recipe)
+   
        if (!recipe) return null; 
    const handleIngredients=()=>{
      setIngredients(prevState => !prevState);
@@ -121,7 +98,7 @@ const handleReplyIcon=()=>{
      <>
      <Navbar/> 
      
-     <Box  p={5} sx={{height:"100%",background:"black"}} >
+     <Box  p={{xs:2,sm:5}} sx={{height:"100%",background:"black"}} >
        
           
         <Box  p={3} display={"flex"} sx={{flexDirection: { xs: 'column', sm: 'row' }}}>      
@@ -130,12 +107,16 @@ const handleReplyIcon=()=>{
                 
             </CardMedia>
            </Card>
-              <CardContent sx={{minWidth:270,maxWidth: {xs:320,sm:500},backgroundColor:"#1B1212",position:"relative"}}>
-                
-                <Typography variant="h4"  sx={{color:"white"}}>{recipe.name}</Typography>
-                <Typography variant="body"  sx={{color:"white"}}>{recipe.description}</Typography>
-                
-              </CardContent>
+              <CardContent sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 270, maxWidth: { xs: 320, sm: 500 }, backgroundColor: "#1B1212" }}>
+                  <div>
+                     <Typography variant="h4" sx={{ color: "white" }}>{recipe.name}</Typography>
+                     <Typography variant="body1" sx={{ color: "white" }}>{recipe.description}</Typography>
+                  </div>
+  
+ 
+                   <Link variant="h5" to={`/profile/${recipe.user._id}`}  sx={{ color: "grey", alignSelf: "flex-end" }}> ~{recipe.user.username}</Link> 
+             </CardContent>
+
           
               
         </Box>  
