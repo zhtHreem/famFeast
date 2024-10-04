@@ -93,6 +93,12 @@ const CommentSection = ({ recipeId }) => {
     }, [recipeId]); 
 
     const addComment = async () => {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        if (!storedUser) {
+        alert('You must be logged in to comment.');
+        // Optionally, redirect to login page
+        return;
+    }
         try {
             const response = await axios.post('https://fam-feast-api.vercel.app/api/comments', {
                 name: commenterName,
@@ -108,6 +114,12 @@ const CommentSection = ({ recipeId }) => {
     };
 
     const addReply = async (commentId, text, name) => {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (!storedUser) {
+        alert('You must be logged in to comment.');
+        // Optionally, redirect to login page
+        return;
+    }
         try {
             const response = await axios.post(`https://fam-feast-api.vercel.app/api/comments/${commentId}/replies`, {
                 name:commenterName,
