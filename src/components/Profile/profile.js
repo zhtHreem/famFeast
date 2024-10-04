@@ -117,89 +117,113 @@ function Profile() {
         return null; // Wait for user data to load
     }
 
-    return (
-        <Layout>
-            {isLoginOpen && (
-                <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 5 }}>
-                    <Login setLogin={setLoginOpen} />
-                </Box>
-            )}
+   return(
+     <Layout>
 
-            <Box sx={{ backgroundColor: "#FFFFF0", minHeight: '100vh' }} p={8}>
-                <Stack direction="column" alignItems="center" justifyContent="center">
-                    <Box component="img" src={require("../../images/useravatar.png")} alt="User Avatar" sx={{ width: 100, height: 100, borderRadius: '50%' }} />
-                    <Typography variant="h3">{user.username}</Typography>
-                    <Typography variant="body1">{currentDate}</Typography>
-                    {currentUser ? (
-                        <>
-                            <IconButton onClick={handleNewRecipe} sx={{ color: "orange", fontWeight: "bold" }}>
-                                <ArrowRightIcon /> Add recipe
-                            </IconButton>
-                            {addRecipe && (
-                                <NewRecipe setAddRecipe={setAddRecipe} />
-                            )}
-                        </>
-                    ) : (
-                        loggedinUser && (
-                            <IconButton onClick={handleToggleFollow} sx={{ color: "orange", fontWeight: "bold" }}>
-                                {follow ? <PersonRemoveIcon /> : <PersonAddIcon />}
-                            </IconButton>
-                        )
-                    )}
-                </Stack>
+       {isLoginOpen && (
+        <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 5 }}>
+          <Login setLogin={setLoginOpen} />
+        </Box>
+      )}   
 
-                <Stack direction="row" p={4} justifyContent="center" spacing={{ xs: 1, sm: 3 }}>
-                    <Paper elevation={8} sx={{ backgroundColor: "black", height: 100, width: 100, display: 'flex', flexDirection: 'column', alignItems: "center", padding: 1, borderRadius: '10%', textAlign: 'center', justifyContent: 'space-around' }}>
-                        <Typography variant="h6" color="white">Recipes</Typography>
-                        <Typography variant="body2" color="white">{recipes.length}</Typography>
-                    </Paper>
 
-                    <Paper elevation={8} onClick={handleOpenFollowing} sx={{ backgroundColor: "black", height: 100, width: 100, display: 'flex', flexDirection: 'column', alignItems: "center", padding: 1, borderRadius: '10%', textAlign: 'center', justifyContent: 'space-around', cursor: "pointer" }}>
-                        <Button sx={{ color: "white" }}>Following</Button>
-                        <Typography variant="body2" color="white">{followingCount}</Typography>
-                        {openFollowing && (
-                            <Following userId={search} setOpenFollowing={setOpenFollowing} />
-                        )}
-                    </Paper>
 
-                    <Paper onClick={handleOpenFollower} elevation={8} sx={{ backgroundColor: "black", height: 100, width: 100, display: 'flex', flexDirection: 'column', alignItems: "center", padding: 1, borderRadius: '10%', textAlign: 'center', justifyContent: 'space-around', cursor: "pointer" }}>
-                        <Button sx={{ color: "white" }}>Follower</Button>
-                        <Typography variant="body2" color="white">{followerCount}</Typography>
-                        {openFollower && (
-                            <Follower userId={search} setOpenFollower={setOpenFollower} />
-                        )}
-                    </Paper>
-                </Stack>
 
-                {recipes.length > 0 ? (
-                    <Stack zIndex={0} justifyContent="center" spacing={{ xs: 1, sm: 3 }}>
-                        <Paper elevation={8} sx={{ backgroundColor: "#FFFFFF", display: 'flex', flexDirection: "column", alignItems: "center", padding: 1, borderRadius: '2%', textAlign: 'center', justifyContent: 'space-evenly' }}>
-                            <Typography variant="h3" pt={4} pb={{ sx: 4, sm: 0 }}>Explore Your Recipes</Typography>
+    {
+       <Box sx={{backgroundColor:"#FFFFF0",minHeight: '100vh'}} p={8} >
+         
+        <Stack direction="column" alignItems="center" justifyContent="center">
+         
+           <Box component="img" src={require("../../images/useravatar.png")}  alt="User Avatar"  sx={{ width: 100, height: 100, borderRadius: '50%' }} />
+           <Typography variant="h3">{user.username}</Typography>
+           <Typography variant="body1">{currentDate}</Typography>
+           {currentUser ? (
 
-                            <Grid container justifyContent="center" spacing={3} p={{ sx: 4, sm: 8 }}>
-                                {recipes.map(recipe => (
-                                    <Grid component={Link} sx={{ textDecoration: "none" }} href={`/recipe/${recipe._id}`} item xs={12} sm={6} md={4} zIndex={3} p={2} key={recipe._id}>
-                                        <Card elevation={4} sx={{ height: 300 }}>
-                                            <CardMedia component="img" height="140" src={recipe.picture} alt="Recipe Image" />
-                                            <CardContent>
-                                                <Typography gutterBottom variant="h5" component="div">
-                                                    {recipe.name}
-                                                </Typography>
-                                                <Typography variant="body2" color="text.secondary">
-                                                    {recipe.description}
-                                                </Typography>
-                                            </CardContent>
-                                        </Card>
-                                    </Grid>
-                                ))}
-                            </Grid>
-                        </Paper>
-                    </Stack>
-                ) : (
-                    <Typography variant="h5" pt={5}>No recipes found for this user.</Typography>
-                )}
-            </Box>
-        </Layout>
+            
+         <>
+               <IconButton onClick={handleNewRecipe} sx={{color:"orange",fontWeight:"bold"}}>
+                  <ArrowRightIcon/> Add recipe                 
+               </IconButton>
+               {addrecipe &&(
+              <NewRecipe setAddRecipe={setAddRecipe}/>
+               )}
+                </>
+            
+      ) : ( loggedinUser && ( 
+
+              <IconButton onClick={handleToggleFollow} sx={{color:"orange",fontWeight:"bold"}}>
+                     {follow?      <PersonRemoveIcon />:<PersonAddIcon/> }
+              </IconButton>   
+
+                ) 
+                )}  
+                    
+   
+        </Stack> 
+
+        <Stack direction="row" p={4} justifyContent="center" spacing={{xs:1,sm:3}}>
+            
+            <Paper elevation={8}   sx={{backgroundColor:"black",height:100,width:100,display: 'flex',flexDirection: 'column',alignItems:"center",padding:1,borderRadius:'10%',textAlign: 'center' ,justifyContent: 'space-around'}} >
+                <Typography variant="h6" color="white">Recipes</Typography>
+                <Typography variant="body2" color="white">{recipes.length}</Typography>
+            </Paper>
+            
+            <Paper elevation={8} onClick={handleOpenFollowing}  sx={{backgroundColor:"black",height:100,width:100,display: 'flex',flexDirection: 'column',alignItems:"center",padding:1,borderRadius:'10%',textAlign: 'center' ,justifyContent: 'space-around',cursor: "pointer"}} >
+                  <Button sx={{color:"white"}}>Following</Button>
+                <Typography variant="body2" color="white">{followingCount}</Typography>
+                {openFollowing &&(
+              <Following userId={search} setOpenFollowing={setOpenFollowing}/>
+               )}
+            </Paper>
+           <Paper  onClick={handleOpenFollower} elevation={8}   sx={{backgroundColor:"black",height:100,width:100,display: 'flex',flexDirection: 'column',alignItems:"center",padding:1,borderRadius:'10%',textAlign: 'center' ,justifyContent: 'space-around',cursor: "pointer"}} >
+                <Button sx={{color:"white"}}>Follower</Button>
+                <Typography variant="body2" color="white">{followerCount}</Typography>
+                {openFollower &&(
+              <Follower userId={search} setOpenFollower={setOpenFollower}/>
+               )}
+            </Paper> 
+            
+            
+        </Stack>
+        
+        
+        
+        {recipes.length > 0 ? (
+  
+        <Stack  zIndex={0} justifyContent="center" spacing={{xs:1,sm:3}}>
+           <Paper elevation={8}   sx={{backgroundColor:"#FFFFFF",display: 'flex',flexDirection:"column",alignItems:"center",padding:1,borderRadius:'2%',textAlign: 'center' ,justifyContent: 'space-evenly'}} >
+           <Typography variant="h3" pt={4} pb={{sx:4,sm:0}} >Explore Your Recipes</Typography>
+              
+           
+           <Grid container  justifyContent="center" spacing={3} p={{sx:4,sm:8}} >
+           
+             { recipes.map(recipe=>(
+                <Grid component={Link} sx={{textDecoration:"none"}}  href={/recipe/${recipe._id}} item xs={12} sm={6} md={4} zIndex={3} p={4} key={recipe.id}>
+                 
+                    <Card  sx={{maxWidth: 345  ,backgroundColor:"#FFFFF0" ,borderRadius: '16px',display:"flex",alignItems:"center",justifyContent:"center"}} >
+
+                        <CardMedia component="img" image={recipe.image} sx={{ width: 100, height: 100, borderRadius: '50%' }}/>
+                        <CardContent >
+                           <Typography  textAlign="center"fontFamily='Fredoka One, sans-serif' variant="h5"  sx={{textDecoration:"none"}}>{recipe.name}</Typography>
+                        </CardContent>
+                        <ArrowForwardIosIcon sx={{color:"black"}}/>
+                   </Card>       
+                </Grid>
+             ))}
+          </Grid>
+           </Paper>
+        </Stack>
+           ) : (
+            <Typography variant="h6" textAlign="center" color="gray" mt={4}>
+                You have no recipes yet. Start by adding your first recipe!
+            </Typography>
+        )}
+       </Box>
+
+            }
+
+    
+             </Layout>
     );
 }
 
