@@ -144,7 +144,7 @@ function Profile() {
                <IconButton onClick={handleNewRecipe} sx={{color:"orange",fontWeight:"bold"}}>
                   <ArrowRightIcon/> Add recipe                 
                </IconButton>
-               {addrecipe &&(
+               {addRecipe &&(
               <NewRecipe setAddRecipe={setAddRecipe}/>
                )}
                 </>
@@ -198,7 +198,7 @@ function Profile() {
            <Grid container  justifyContent="center" spacing={3} p={{sx:4,sm:8}} >
            
              { recipes.map(recipe=>(
-                <Grid component={Link} sx={{textDecoration:"none"}}  href={/recipe/${recipe._id}} item xs={12} sm={6} md={4} zIndex={3} p={4} key={recipe.id}>
+                <Grid component={Link} sx={{textDecoration:"none"}}  href={`/recipe/${recipe._id}`} item xs={12} sm={6} md={4} zIndex={3} p={4} key={recipe.id}>
                  
                     <Card  sx={{maxWidth: 345  ,backgroundColor:"#FFFFF0" ,borderRadius: '16px',display:"flex",alignItems:"center",justifyContent:"center"}} >
 
