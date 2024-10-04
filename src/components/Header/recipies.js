@@ -120,7 +120,7 @@ export default function Recipes(){
           <Grid  item xs={12} sm={6} md={4} zIndex={3}  key={recipe.id}>
             <Link to={`/recipe/${recipe._id}`} style={{ textDecoration: 'none' }}> 
             <Card  sx={{backgroundColor:"#1B1212"  , borderRadius: '16px'}}>
-              <CardMedia component="img" image={recipe.image} sx={{height:300,width:"100%",objectFit:'fill'}}/>
+              <CardMedia component="img" image={recipe.image} sx={{height:300,maxWidth:345,objectFit:'fill'}}/>
                <CardContent >
                  <Typography color="white" textAlign="center"fontFamily='Fredoka One, sans-serif' variant="h5">{recipe.name}</Typography>
                </CardContent>
