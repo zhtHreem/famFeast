@@ -41,7 +41,7 @@ function Profile() {
 
         fetchUserData(search);
         fetchUserRecipes(search);
-    }, [search]);
+    }, [search,loggedinUser]);
 
     const fetchUserData = async (userId) => {
         Swal.fire({
