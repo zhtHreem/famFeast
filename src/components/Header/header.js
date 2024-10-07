@@ -102,7 +102,7 @@ const Header = () => {
       <Box component="img" src={require("../../images/l1.png")}sx={{  width:{xs:'90%',lg: '90%'}, height:{xs:'2%'},  objectFit: 'contain', position: 'absolute',bottom:{ xs:"95%" ,md:"96%",lg:'95%'}, right: {xs:'45%',md:'48%',lg:'51%'},zIndex: 1, transform: 'rotate(340deg)', userSelect: 'none', pointerEvents: 'none'}}/>
       <Box component="img" src={require("../../images/l1.png")}sx={{  width:{xs:'90%',lg: '90%'}, height:{xs:'2%'},  objectFit: 'contain', position: 'absolute',bottom:{ xs:"91%" ,md:"92%",lg:'91%'}, right: {xs:'50%',lg:'53%'},zIndex: 1, transform: 'rotate(195deg)', userSelect: 'none', pointerEvents: 'none'}}/>
         <Container sx={{ position: 'relative', zIndex: 3 }}>
-          <Typography variant="h2" align="center" pt={5} color="#FFFFF0" fontWeight="bold">
+          <Typography variant="h2" align="center" pt={5} color="#FFFFF0" fontWeight="bold" fontFamily='Noto Nastaliq Urdu'>
             خاندانی ذائقے
           </Typography>
           <Typography variant="h6" align="center" pt={3} color="#FFFFF0" fontWeight="bold">
@@ -110,9 +110,9 @@ const Header = () => {
           </Typography>
         </Container>
         <Box sx={{ position: 'relative', p: { xs: 25, md: 30, lg: 40 } }}>
-          <Box component="img" src={require("../../images/gold.png")} sx={{ width: { xs: '60%', lg: '50%' }, height: { xs: '70%', lg: '80%' }, objectFit: 'cover', position: 'absolute', bottom: { xs: "20%", md: "13%", lg: '11%' }, right: { xs: '34%', lg: '40%' }, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
-          <Box component="img" src={require("../../images/leaves.png")} sx={{ width: { xs: '60%', lg: '50%' }, height: { xs: '80%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "30%", md: '20%', lg: '30%' }, right: { xs: '0%' }, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
-          <Box component="img" src={require("../../images/q.png")} sx={{ width: '100%', height: { xs: '115%', md: '90%', lg: '115%' }, objectFit: 'contain', position: 'absolute', bottom: 0, left: 0, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
+          <Box component="img" src={require("../../images/gold.webp")} sx={{ width: { xs: '60%', lg: '50%' }, height: { xs: '70%', lg: '80%' }, objectFit: 'cover', position: 'absolute', bottom: { xs: "20%", md: "13%", lg: '11%' }, right: { xs: '34%', lg: '40%' }, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
+          <Box component="img" src={require("../../images/leaves.webp")} sx={{ width: { xs: '60%', lg: '50%' }, height: { xs: '80%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "30%", md: '20%', lg: '30%' }, right: { xs: '0%' }, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
+          <Box component="img" src={require("../../images/food (1).webp")} sx={{ width: '100%', height: { xs: '115%', md: '90%', lg: '115%' }, objectFit: 'contain', position: 'absolute', bottom: 0, left: 0, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
         </Box>
       </Box>
     </Box>
