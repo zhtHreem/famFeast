@@ -103,6 +103,7 @@ const NATURE_WORDS = new Set([
 
 // Does a pantry item satisfy a recipe key?
 export const satisfies = (pantryKey, recipeKey) => {
+  if (typeof pantryKey !== 'string' || typeof recipeKey !== 'string' || !pantryKey || !recipeKey) return false;
   if (pantryKey === recipeKey) return true;
   if (INDIVISIBLE.has(pantryKey) || INDIVISIBLE.has(recipeKey)) return false;
   if (STAPLES.includes(pantryKey) || STAPLES.includes(recipeKey)) return false; // salt/pepper/water/oil: exact only

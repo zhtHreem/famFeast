@@ -403,3 +403,27 @@ describe('pantry matching accuracy', () => {
     expect(satisfies(pantry, recipe)).toBe(expected);
   });
 });
+
+describe('legacy data in the database', () => {
+  test('a recipe from the old site (no ingredientKeys / visibility) does not break pantry search', async () => {
+    // Regression for a production 500: such a document makes distinct('ingredientKeys') return null.
+    const legacy = await Recipe.collection.insertOne({ user: 'someone', name: `LEGACY ${run}`, description: 'old', ingredients: ['1 egg', '2 cups flour'], directions: ['mix'], image: 'x' });
+    try {
+      const res = await request(app).post('/api/pantry/match').send({ ingredients: ['egg', 'flour'], maxMissing: 5, limit: 60 });
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.items)).toBe(true);
+      expect(res.body.items.find((r) => r.name === `LEGACY ${run}`)).toBeUndefined(); // never listed
+      const list = await request(app).get('/api/recipes').query({ q: `LEGACY ${run}` });
+      expect(list.body.total).toBe(0);
+    } finally {
+      await Recipe.collection.deleteOne({ _id: legacy.insertedId });
+    }
+  });
+
+  test('satisfies() never throws on bad input', async () => {
+    const { satisfies } = await import('../src/utils/ingredients.js');
+    expect(satisfies(null, 'egg')).toBe(false);
+    expect(satisfies('egg', undefined)).toBe(false);
+    expect(satisfies('', 'egg')).toBe(false);
+  });
+});

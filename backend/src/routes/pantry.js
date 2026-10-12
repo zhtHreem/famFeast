@@ -15,7 +15,9 @@ const DIETS = ['vegetarian', 'vegan', 'gluten-free', 'dairy-free', 'halal'];
 // Every distinct ingredient key in the collection (a few thousand short strings), cached.
 // Used to expand a pantry item into the recipe keys it can satisfy ("chicken" -> "chicken breast", ...)
 // so the database only has to look at recipes that can possibly match, via the multikey index.
-const vocabulary = () => cached('vocab', 10 * 60 * 1000, () => Recipe.distinct('ingredientKeys'));
+// Legacy documents without ingredientKeys show up as null in distinct(), so keep only real strings.
+const vocabulary = () =>
+  cached('vocab', 10 * 60 * 1000, async () => (await Recipe.distinct('ingredientKeys')).filter((k) => typeof k === 'string' && k.length > 0));
 
 // Which recipes may this viewer search?
 const scopeFilter = async (scope, user) => {
@@ -99,7 +101,7 @@ router.post(
         percent: r.percent,
         haveCount: r.haveCount,
         total: r.total,
-        missing: r.missingKeys.map((name) => ({ name, substitutes: substitutesFor(name) })),
+        missing: r.missingKeys.filter((name) => typeof name === 'string' && name).map((name) => ({ name, substitutes: substitutesFor(name) })),
       })),
     });
   })
@@ -115,7 +117,7 @@ const ingredientKeys = () =>
       { $sort: { count: -1 } },
       { $limit: 1500 },
     ]);
-    return rows.map((r) => r._id);
+    return rows.map((r) => r._id).filter((k) => typeof k === 'string' && k.length > 0);
   });
 
 router.get(
