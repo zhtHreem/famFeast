@@ -71,7 +71,7 @@ const Header = () => {
           <Typography variant="h2" component="h1" align="center" pt={{ xs: 4, md: 6 }} color="#FFFFF0" fontWeight="bold">
             Family Flavours
           </Typography>
-          <Typography variant="h6" align="center" pt={2} color="#FFFFF0" sx={{ maxWidth: 620, mx: 'auto', fontWeight: 400, lineHeight: 1.6 }}>
+          <Typography variant="h6" align="center" pt={2} color="#FFFFF0" sx={{ maxWidth: 620, mx: 'auto', fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: { xs: '1.05rem', md: '1.2rem' }, lineHeight: 1.65 }}>
             Where treasured family recipes live on. Cook with what you have and bring the taste of home to every table.
           </Typography>
         </Container>

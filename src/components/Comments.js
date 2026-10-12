@@ -5,6 +5,8 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import api, { errorMessage } from '../api';
 import { useAuth } from '../auth/AuthContext';
 import { useFeedback } from './Feedback';
+import ErrorState from './ErrorState';
+import { CommentsSkeleton } from './Skeletons';
 
 const ago = (date) => {
   const s = Math.max(1, Math.floor((Date.now() - new Date(date)) / 1000));
@@ -35,10 +37,19 @@ export default function Comments({ recipeId, recipeOwnerId }) {
   const [replyTo, setReplyTo] = useState(null);
   const [replyText, setReplyText] = useState('');
   const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState('loading'); // loading | ok | error
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    api.get('/comments', { params: { recipeId } }).then((r) => setComments(r.data)).catch(() => {});
-  }, [recipeId]);
+    setStatus('loading');
+    api
+      .get('/comments', { params: { recipeId } })
+      .then((r) => {
+        setComments(r.data);
+        setStatus('ok');
+      })
+      .catch(() => setStatus('error'));
+  }, [recipeId, attempt]);
 
   const post = async () => {
     if (!text.trim()) return;
@@ -94,6 +105,9 @@ export default function Comments({ recipeId, recipeOwnerId }) {
         </Typography>
       )}
 
+      {status === 'loading' && <CommentsSkeleton />}
+      {status === 'error' && <ErrorState compact title="Comments didn't load" onRetry={() => setAttempt((a) => a + 1)} />}
+      {status === 'ok' && (
       <Stack spacing={2.5}>
         {comments.map((c) => (
           <Box key={c._id}>
@@ -129,6 +143,7 @@ export default function Comments({ recipeId, recipeOwnerId }) {
         ))}
         {comments.length === 0 && <Typography color="text.secondary">No comments yet. Be the first!</Typography>}
       </Stack>
+      )}
     </Box>
   );
 }

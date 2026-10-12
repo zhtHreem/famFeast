@@ -8,10 +8,10 @@ export default function Logo({ size = 'md' }) {
   const big = size === 'lg';
   return (
     <Box component={Link} to="/" aria-label="FamFeast home" sx={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex', flexDirection: 'column', lineHeight: 1 }}>
-      <Typography component="span" sx={{ fontSize: big ? 16 : 12, color: 'rgba(255,255,255,0.65)', fontWeight: 700, letterSpacing: 1, ml: 0.3 }}>
+      <Typography component="span" sx={{ fontFamily: 'Questrial, sans-serif', fontSize: big ? 16 : 12, color: 'rgba(255,255,255,0.65)', fontWeight: 700, letterSpacing: 1, ml: 0.3 }}>
         Fam
       </Typography>
-      <Typography component="span" sx={{ fontSize: big ? 38 : 28, fontWeight: 700, letterSpacing: 2, mt: -0.4 }}>
+      <Typography component="span" sx={{ fontFamily: 'Questrial, sans-serif', fontSize: big ? 38 : 28, fontWeight: 700, letterSpacing: 2, mt: -0.4 }}>
         F<span style={{ fontFamily: 'Blaka, cursive', color: ACCENT }}>E</span>AST
       </Typography>
     </Box>

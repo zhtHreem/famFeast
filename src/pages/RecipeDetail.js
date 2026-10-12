@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Alert, Avatar, Box, Breadcrumbs, Button, Checkbox, Chip, Container, FormControlLabel, Grid, IconButton, LinearProgress, Link as MuiLink,
+  Avatar, Box, Breadcrumbs, Button, Checkbox, Chip, Container, FormControlLabel, Grid, IconButton, LinearProgress, Link as MuiLink,
   Paper, Rating, Skeleton, Stack, Tooltip, Typography,
 } from '@mui/material';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -23,6 +23,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useFeedback } from '../components/Feedback';
 import Comments from '../components/Comments';
 import EmptyState from '../components/EmptyState';
+import ErrorState from '../components/ErrorState';
 import RecipeGrid from '../components/RecipeGrid';
 import { RecipeImage } from '../components/RecipeCard';
 
@@ -81,6 +82,7 @@ export default function RecipeDetail() {
   const [checked, setChecked] = useState({});
   const [done, setDone] = useState({});
   const [related, setRelated] = useState([]);
+  const [attempt, setAttempt] = useState(0);
 
   usePageTitle(recipe?.name || 'Recipe');
   useRecipeJsonLd(recipe);
@@ -95,7 +97,12 @@ export default function RecipeDetail() {
     setRelated([]);
     api
       .get(`/recipes/${id}`)
-      .then((r) => !cancelled && setRecipe(r.data))
+      .then((r) => {
+        if (cancelled) return;
+        // A malformed response should read as a failed load, not crash the page
+        if (!Array.isArray(r.data?.ingredients) || !Array.isArray(r.data?.directions)) throw new Error('bad-shape');
+        setRecipe(r.data);
+      })
       .catch((e) => {
         if (cancelled) return;
         if (e.response?.status === 404 || e.response?.status === 400) setNotFound(true);
@@ -104,7 +111,7 @@ export default function RecipeDetail() {
     return () => {
       cancelled = true;
     };
-  }, [id, user?.id]);
+  }, [id, user?.id, attempt]);
 
   // "More like this": same category (or cuisine), public recipes only
   const relatedCategory = recipe?.visibility === 'public' ? recipe.category : null;
@@ -181,7 +188,7 @@ export default function RecipeDetail() {
       </Container>
     );
   }
-  if (error) return <Container sx={{ py: 6 }}><Alert severity="error">{error}</Alert></Container>;
+  if (error) return <Container maxWidth="sm"><ErrorState message={error} onRetry={() => setAttempt((a) => a + 1)} /></Container>;
   if (!recipe) {
     return (
       <Container maxWidth="lg" sx={{ py: 3 }}>

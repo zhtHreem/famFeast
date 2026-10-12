@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Chip, Container, Stack, Typography } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../api';
+import api, { errorMessage } from '../api';
+import ErrorState from '../components/ErrorState';
 import usePageTitle from '../hooks/usePageTitle';
 import { useAuth } from '../auth/AuthContext';
 import IngredientInput from '../components/IngredientInput';
@@ -17,6 +18,8 @@ export default function Home() {
   const [recipes, setRecipes] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     Promise.all([api.get('/recipes', { params: { limit: 8, sort: 'new' } }), api.get('/recipes/facets')])
@@ -24,9 +27,9 @@ export default function Home() {
         setRecipes(r.data.items);
         setCategories(f.data.categories.slice(0, 12));
       })
-      .catch(() => {})
+      .catch((e) => setError(errorMessage(e, 'Could not load recipes.')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [attempt]);
 
   const findRecipes = (e) => {
     e.preventDefault();
@@ -70,7 +73,11 @@ export default function Home() {
             ))}
           </Stack>
         )}
-        <RecipeGrid recipes={recipes} loading={loading} />
+        {error ? (
+          <ErrorState compact message={error} onRetry={() => { setError(''); setLoading(true); setAttempt((a) => a + 1); }} />
+        ) : (
+          <RecipeGrid recipes={recipes} loading={loading} />
+        )}
       </Container>
 
       {/* Family cookbook invitation: plain text on the same canvas */}

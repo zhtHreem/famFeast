@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Alert, Box, Button, Card, CardActionArea, CardContent, Chip, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogTitle,
+  Alert, Box, Button, Card, CardActionArea, CardContent, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle,
   Grid, Stack, TextField, Typography,
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
@@ -11,6 +11,8 @@ import api, { errorMessage } from '../api';
 import usePageTitle from '../hooks/usePageTitle';
 import { useFeedback } from '../components/Feedback';
 import EmptyState from '../components/EmptyState';
+import ErrorState from '../components/ErrorState';
+import { CookbookCardsSkeleton } from '../components/Skeletons';
 
 function PromptDialog({ open, title, fields, submitLabel, onClose, onSubmit }) {
   const [values, setValues] = useState({});
@@ -64,11 +66,13 @@ export default function Cookbooks() {
   const { notify } = useFeedback();
   const [books, setBooks] = useState(null);
   const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
   const [dialog, setDialog] = useState(null); // 'create' | 'join'
 
   useEffect(() => {
+    setError('');
     api.get('/cookbooks').then((r) => setBooks(r.data)).catch((e) => setError(errorMessage(e, 'Could not load your cookbooks.')));
-  }, []);
+  }, [attempt]);
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }}>
@@ -83,8 +87,8 @@ export default function Cookbooks() {
         </Stack>
       </Stack>
 
-      {error && <Alert severity="error">{error}</Alert>}
-      {!books && !error && <Box sx={{ display: 'grid', placeItems: 'center', py: 8 }}><CircularProgress /></Box>}
+      {error && <ErrorState message={error} onRetry={() => setAttempt((a) => a + 1)} />}
+      {!books && !error && <CookbookCardsSkeleton />}
 
       {books?.length === 0 && (
         <EmptyState icon={<GroupsIcon />} title="No cookbooks yet" text="Create one for your family, then share the invite code so everyone can add their favourite dishes. Or join one with a code you received." action={<Button variant="contained" onClick={() => setDialog('create')}>Create your first cookbook</Button>} />

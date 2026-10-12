@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Alert, Avatar, Box, Button, Chip, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItemAvatar,
+  Avatar, Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItemAvatar,
   ListItemButton, ListItemText, Paper, Stack, Tab, Tabs, TextField, Typography,
 } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
@@ -12,12 +12,15 @@ import { useAuth } from '../auth/AuthContext';
 import { useFeedback } from '../components/Feedback';
 import RecipeGrid from '../components/RecipeGrid';
 import EmptyState from '../components/EmptyState';
+import ErrorState from '../components/ErrorState';
+import { ProfileSkeleton, PeopleSkeleton } from '../components/Skeletons';
 import { LEAF_GOLD, LEAF_OLIVE, LEAF_CREAM } from '../components/leafImages';
 
 const PAGE = 12;
 
-function PeopleList({ people, empty }) {
-  if (!people) return <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}><CircularProgress /></Box>;
+function PeopleList({ people, empty, failed, onRetry }) {
+  if (failed) return <ErrorState compact message="Could not load this list." onRetry={onRetry} />;
+  if (!people) return <PeopleSkeleton />;
   if (!people.length) return <EmptyState title={empty} />;
   return (
     <List sx={{ maxWidth: 560 }}>
@@ -60,6 +63,9 @@ export default function Profile() {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState({ username: '', bio: '' });
   const [busy, setBusy] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [recipesFailed, setRecipesFailed] = useState(false);
+  const [tabFailed, setTabFailed] = useState(false);
 
   const isMe = user?.id === id;
   usePageTitle(profile?.username || 'Profile');
@@ -76,14 +82,17 @@ export default function Profile() {
     setPeople({ followers: null, following: null });
     setSaved(null);
     load();
-    api.get(`/recipes/user/${id}`, { params: { limit: PAGE } }).then((r) => setRecipes(r.data)).catch(() => setRecipes({ items: [], total: 0, page: 1, pages: 1 }));
-  }, [id, load]);
+    setRecipesFailed(false);
+    api.get(`/recipes/user/${id}`, { params: { limit: PAGE } }).then((r) => setRecipes(r.data)).catch(() => setRecipesFailed(true));
+  }, [id, load, attempt]);
 
   useEffect(() => {
-    if (tab === 'followers' && !people.followers) api.get(`/users/${id}/follower`).then((r) => setPeople((p) => ({ ...p, followers: r.data.followers }))).catch(() => {});
-    if (tab === 'following' && !people.following) api.get(`/users/${id}/following`).then((r) => setPeople((p) => ({ ...p, following: r.data.following }))).catch(() => {});
-    if (tab === 'saved' && !saved) api.get('/me/saved').then((r) => setSaved(r.data)).catch(() => setSaved([]));
-  }, [tab, id, people, saved]);
+    setTabFailed(false);
+    if (tab === 'followers' && !people.followers) api.get(`/users/${id}/follower`).then((r) => setPeople((p) => ({ ...p, followers: r.data.followers }))).catch(() => setTabFailed(true));
+    if (tab === 'following' && !people.following) api.get(`/users/${id}/following`).then((r) => setPeople((p) => ({ ...p, following: r.data.following }))).catch(() => setTabFailed(true));
+    if (tab === 'saved' && !saved) api.get('/me/saved').then((r) => setSaved(r.data)).catch(() => setTabFailed(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, id, attempt]);
 
   const loadMore = async () => {
     setLoadingMore(true);
@@ -125,8 +134,8 @@ export default function Profile() {
   };
 
   if (error === 'not-found') return <Container maxWidth="sm"><EmptyState title="User not found" action={<Button component={Link} to="/recipes" variant="contained">Browse recipes</Button>} /></Container>;
-  if (error) return <Container sx={{ py: 6 }}><Alert severity="error">{error}</Alert></Container>;
-  if (!profile) return <Box sx={{ display: 'grid', placeItems: 'center', py: 12 }}><CircularProgress /></Box>;
+  if (error) return <Container maxWidth="sm"><ErrorState message={error} onRetry={() => { setError(''); load(); setAttempt((a) => a + 1); }} /></Container>;
+  if (!profile) return <ProfileSkeleton />;
 
   const official = profile.username === 'FamFeast';
 
@@ -177,7 +186,8 @@ export default function Profile() {
         <Tab value="following" label="Following" />
       </Tabs>
 
-      {tab === 'recipes' && (
+      {tab === 'recipes' && recipesFailed && <ErrorState compact message="Could not load recipes." onRetry={() => setAttempt((a) => a + 1)} />}
+      {tab === 'recipes' && !recipesFailed && (
         recipes && recipes.items.length === 0 ? (
           <EmptyState title={isMe ? "You haven't shared a recipe yet" : 'No public recipes yet'} action={isMe && <Button component={Link} to="/recipes/new" variant="contained">Add your first recipe</Button>} />
         ) : (
@@ -191,9 +201,10 @@ export default function Profile() {
           </>
         )
       )}
-      {tab === 'saved' && (saved && saved.length === 0 ? <EmptyState title="Nothing saved yet" text="Tap Save on any recipe to keep it here." action={<Button component={Link} to="/recipes" variant="contained">Browse recipes</Button>} /> : <RecipeGrid recipes={saved || []} loading={!saved} skeletons={4} />)}
-      {tab === 'followers' && <PeopleList people={people.followers} empty="No followers yet" />}
-      {tab === 'following' && <PeopleList people={people.following} empty="Not following anyone yet" />}
+      {tab === 'saved' && tabFailed && <ErrorState compact message="Could not load saved recipes." onRetry={() => setAttempt((a) => a + 1)} />}
+      {tab === 'saved' && !tabFailed && (saved && saved.length === 0 ? <EmptyState title="Nothing saved yet" text="Tap Save on any recipe to keep it here." action={<Button component={Link} to="/recipes" variant="contained">Browse recipes</Button>} /> : <RecipeGrid recipes={saved || []} loading={!saved} skeletons={4} />)}
+      {tab === 'followers' && <PeopleList people={people.followers} empty="No followers yet" failed={tabFailed} onRetry={() => setAttempt((a) => a + 1)} />}
+      {tab === 'following' && <PeopleList people={people.following} empty="Not following anyone yet" failed={tabFailed} onRetry={() => setAttempt((a) => a + 1)} />}
 
       <Dialog open={editing} onClose={() => setEditing(false)} fullWidth maxWidth="xs">
         <DialogTitle>Edit profile</DialogTitle>

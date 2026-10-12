@@ -13,6 +13,7 @@ import connectDB from '../src/database/connectivity.js';
 import Recipe from '../src/database/models/Recipe/schema.js';
 import Rating from '../src/database/models/Recipe/rating.js';
 import Comment from '../src/database/models/Comment/schema.js';
+import Cookbook from '../src/database/models/Cookbook/schema.js';
 import User from '../src/database/models/User/user.js';
 
 const remove = process.argv.includes('--remove');
@@ -154,6 +155,12 @@ if (!kitchen) {
 const demoUsers = await User.find({ isDemo: true }).select('_id');
 const demoIds = demoUsers.map((u) => u._id);
 if (demoIds.length) {
+  // cookbooks owned by sample accounts (and the family-only recipes inside them)
+  const demoBooks = (await Cookbook.find({ owner: { $in: demoIds } }).select('_id')).map((c) => c._id);
+  if (demoBooks.length) {
+    await Recipe.deleteMany({ cookbook: { $in: demoBooks } });
+    await Cookbook.deleteMany({ _id: { $in: demoBooks } });
+  }
   await Promise.all([
     Comment.deleteMany({ $or: [{ isDemo: true }, { user: { $in: demoIds } }] }),
     Rating.deleteMany({ user: { $in: demoIds } }),

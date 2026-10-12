@@ -1,25 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, Container, Typography } from '@mui/material';
+import { Button, Container, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import api, { errorMessage } from '../api';
 import usePageTitle from '../hooks/usePageTitle';
 import RecipeGrid from '../components/RecipeGrid';
 import EmptyState from '../components/EmptyState';
+import ErrorState from '../components/ErrorState';
 
 export default function Saved() {
   usePageTitle('Saved recipes');
   const [recipes, setRecipes] = useState(null);
   const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    setError('');
     api.get('/me/saved').then((r) => setRecipes(r.data)).catch((e) => setError(errorMessage(e)));
-  }, []);
+  }, [attempt]);
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }}>
       <Typography variant="h2" component="h1" sx={{ mb: 3 }}>Saved recipes</Typography>
-      {error && <Alert severity="error">{error}</Alert>}
+      {error && <ErrorState message={error} onRetry={() => setAttempt((a) => a + 1)} />}
       {recipes?.length === 0 ? (
         <EmptyState icon={<BookmarkBorderIcon />} title="Nothing saved yet" text="Tap Save on any recipe to keep it here." action={<Button component={Link} to="/recipes" variant="contained">Browse recipes</Button>} />
       ) : (

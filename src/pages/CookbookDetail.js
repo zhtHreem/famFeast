@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Avatar, Box, Button, Chip, CircularProgress, Container, IconButton, InputAdornment, Paper, Stack, TextField, Tooltip, Typography } from '@mui/material';
+import { Avatar, Box, Button, Chip, Container, IconButton, InputAdornment, Paper, Stack, TextField, Tooltip, Typography } from '@mui/material';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -12,6 +12,8 @@ import { useAuth } from '../auth/AuthContext';
 import { useFeedback } from '../components/Feedback';
 import RecipeGrid from '../components/RecipeGrid';
 import EmptyState from '../components/EmptyState';
+import ErrorState from '../components/ErrorState';
+import { CookbookDetailSkeleton } from '../components/Skeletons';
 
 export default function CookbookDetail() {
   const { id } = useParams();
@@ -20,12 +22,14 @@ export default function CookbookDetail() {
   const { notify, confirm } = useFeedback();
   const [book, setBook] = useState(null);
   const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
   usePageTitle(book?.name || 'Cookbook');
 
   const load = useCallback(() => {
+    setError('');
     api.get(`/cookbooks/${id}`).then((r) => setBook(r.data)).catch((e) => setError(e.response?.status === 404 ? 'not-found' : errorMessage(e)));
   }, [id]);
-  useEffect(load, [load]);
+  useEffect(load, [load, attempt]);
 
   const copy = async (text, label) => {
     try {
@@ -81,8 +85,8 @@ export default function CookbookDetail() {
   if (error === 'not-found') {
     return <Container maxWidth="sm"><EmptyState title="Cookbook not found" text="It may have been deleted, or you are not a member." action={<Button component={Link} to="/cookbooks" variant="contained">My cookbooks</Button>} /></Container>;
   }
-  if (error) return <Container sx={{ py: 6 }}><Alert severity="error">{error}</Alert></Container>;
-  if (!book) return <Box sx={{ display: 'grid', placeItems: 'center', py: 12 }}><CircularProgress /></Box>;
+  if (error) return <Container maxWidth="sm"><ErrorState message={error} onRetry={() => setAttempt((a) => a + 1)} /></Container>;
+  if (!book) return <CookbookDetailSkeleton />;
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }}>

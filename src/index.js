@@ -19,6 +19,7 @@ import Profile from './pages/Profile';
 import Saved from './pages/Saved';
 import AuthPage from './pages/AuthPage';
 import NotFound from './pages/NotFound';
+import RouteError from './components/RouteError';
 import reportWebVitals from './reportWebVitals';
 
 // Old URLs from the previous version of the site keep working.
@@ -27,6 +28,7 @@ const LegacyRecipe = () => <Navigate to={`/recipe/${useParams().id}`} replace />
 const router = createBrowserRouter([
   {
     element: <Layout />,
+    errorElement: <RouteError />,
     children: [
       // Public
       { path: '/', element: <Home /> },

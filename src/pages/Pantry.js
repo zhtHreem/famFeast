@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Alert, Box, Button, Card, CardActionArea, CardContent, Chip, CircularProgress, Collapse, Container, FormControlLabel, Grid,
+  Box, Button, Card, CardActionArea, CardContent, Chip, CircularProgress, Collapse, Container, FormControlLabel, Grid,
   LinearProgress, MenuItem, Popover, Stack, Switch, TextField, Typography,
 } from '@mui/material';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -16,6 +16,8 @@ import { useFeedback } from '../components/Feedback';
 import IngredientInput from '../components/IngredientInput';
 import { RecipeImage } from '../components/RecipeCard';
 import EmptyState from '../components/EmptyState';
+import ErrorState from '../components/ErrorState';
+import { PantryResultsSkeleton } from '../components/Skeletons';
 
 const STORAGE_KEY = 'ff_pantry';
 const readLocal = () => {
@@ -57,6 +59,7 @@ export default function Pantry() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
   const [subs, setSubs] = useState({ anchor: null, name: '', list: null, loading: false });
   const fileRef = useRef(null);
   const loadedRemote = useRef(false);
@@ -104,7 +107,7 @@ export default function Pantry() {
       controller.abort();
       clearTimeout(t);
     };
-  }, [items, maxMissing, scope, diet, assumeStaples, user]);
+  }, [items, maxMissing, scope, diet, assumeStaples, user, attempt]);
 
   const addItems = useCallback((list) => setItems((cur) => [...new Set([...cur, ...list.map((s) => s.trim().toLowerCase()).filter(Boolean)])]), []);
 
@@ -237,12 +240,13 @@ export default function Pantry() {
         </CardContent>
       </Card>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {loading && <LinearProgress sx={{ mb: 2 }} />}
+      {error && <ErrorState compact message={error} onRetry={() => setAttempt((a) => a + 1)} />}
+      {loading && result && <LinearProgress sx={{ mb: 2 }} />}
+      {loading && !result && !error && items.length > 0 && <PantryResultsSkeleton />}
 
       {!items.length && <EmptyState icon={<KitchenIcon />} title="Your pantry is empty" text="Start with a few things you have, like eggs, rice or onions. You can add more any time." />}
 
-      {result && items.length > 0 && (
+      {result && !error && items.length > 0 && (
         <>
           <Typography sx={{ mb: 2 }} color="text.secondary">
             {result.totalMatches === 0

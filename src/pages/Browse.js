@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Box, Button, Chip, Container, MenuItem, Pagination, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Chip, Container, MenuItem, Pagination, Stack, TextField, Typography } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import api, { errorMessage } from '../api';
 import usePageTitle from '../hooks/usePageTitle';
 import RecipeGrid from '../components/RecipeGrid';
 import EmptyState from '../components/EmptyState';
+import ErrorState from '../components/ErrorState';
 
 const DIET_LABELS = { vegetarian: 'Vegetarian', vegan: 'Vegan', 'gluten-free': 'Gluten-free', 'dairy-free': 'Dairy-free', halal: 'Halal' };
 
@@ -24,6 +25,7 @@ export default function Browse() {
   const [data, setData] = useState({ items: [], total: 0, pages: 1 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     api.get('/recipes/facets').then((r) => setFacets(r.data)).catch(() => {});
@@ -41,7 +43,7 @@ export default function Browse() {
     return () => {
       cancelled = true;
     };
-  }, [q, category, cuisine, diet, sort, page]);
+  }, [q, category, cuisine, diet, sort, page, attempt]);
 
   const update = (changes) => {
     const next = new URLSearchParams(params);
@@ -80,9 +82,10 @@ export default function Browse() {
         {hasFilters && <Button size="small" onClick={() => setParams({})} sx={{ flexShrink: 0 }}>Clear all</Button>}
       </Stack>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      {!loading && !error && data.items.length === 0 ? (
+      {error ? (
+        <ErrorState message={error} onRetry={() => setAttempt((a) => a + 1)} />
+      ) : !loading && data.items.length === 0 ? (
         <EmptyState icon={<SearchOffIcon />} title="No recipes found" text="Try fewer filters or a different word. You can also search by ingredient." action={<Button variant="contained" onClick={() => setParams({})}>Show all recipes</Button>} />
       ) : (
         <RecipeGrid recipes={data.items} loading={loading} skeletons={12} />
