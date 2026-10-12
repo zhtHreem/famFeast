@@ -85,9 +85,12 @@ router.get(
   '/users/:id',
   asyncHandler(async (req, res) => {
     requireId(req.params.id, 'user id');
-    const user = await User.findById(req.params.id).select('username bio followers following createdAt');
+    const [user, recipeCount] = await Promise.all([
+      User.findById(req.params.id).select('username bio followers following createdAt isDemo'),
+      Recipe.countDocuments({ user: req.params.id, visibility: 'public' }),
+    ]);
     if (!user) throw new HttpError(404, 'User not found.');
-    res.json({ ...publicUser(user), createdAt: user.createdAt, followerIds: user.followers, followingIds: user.following });
+    res.json({ ...publicUser(user), recipeCount, createdAt: user.createdAt, followerIds: user.followers, followingIds: user.following });
   })
 );
 

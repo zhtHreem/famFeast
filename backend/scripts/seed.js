@@ -32,6 +32,14 @@ const get = async (path, tries = 3) => {
   throw new Error(`Failed to fetch ${path}`);
 };
 
+const hostOf = (u) => {
+  try {
+    return new URL(u).hostname.replace(/^www./, '');
+  } catch {
+    return 'Original source';
+  }
+};
+
 const toDirections = (text = '') => {
   let lines = text
     .split(/\r?\n/)
@@ -75,7 +83,7 @@ const toRecipe = (m, userId) => {
     diets,
     tags: (m.strTags || '').split(',').map((t) => t.trim()).filter(Boolean).slice(0, 10),
     visibility: 'public',
-    source: { name: 'TheMealDB', url: m.strSource || `https://www.themealdb.com/meal/${m.idMeal}` },
+    source: m.strSource ? { name: hostOf(m.strSource), url: m.strSource } : { name: 'TheMealDB', url: `https://www.themealdb.com/meal/${m.idMeal}` },
     isSeed: true,
   };
 };

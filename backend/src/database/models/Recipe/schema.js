@@ -50,7 +50,17 @@ const recipeSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-recipeSchema.index({ name: 'text', description: 'text', 'ingredients.name': 'text' });
+// Indexes that match the actual query + sort patterns (browse, filters, profile, cookbook pages).
+recipeSchema.index({ visibility: 1, createdAt: -1 });
+recipeSchema.index({ visibility: 1, ratingAvg: -1, ratingCount: -1 });
+recipeSchema.index({ visibility: 1, saveCount: -1 });
+recipeSchema.index({ visibility: 1, name: 1 });
+recipeSchema.index({ visibility: 1, category: 1, createdAt: -1 });
+recipeSchema.index({ visibility: 1, cuisine: 1, createdAt: -1 });
+recipeSchema.index({ visibility: 1, diets: 1, createdAt: -1 });
+recipeSchema.index({ user: 1, visibility: 1, createdAt: -1 });
+recipeSchema.index({ cookbook: 1, createdAt: -1 });
+recipeSchema.index({ visibility: 1, ingredientKeys: 1 }); // pantry matcher candidate lookup
 
 recipeSchema.pre('validate', function (next) {
   this.ingredientKeys = [...new Set(this.ingredients.map((i) => normalizeIngredient(i.name)).filter(Boolean))];

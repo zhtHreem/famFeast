@@ -11,6 +11,7 @@ const UserSchema = new mongoose.Schema(
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     savedRecipes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Recipe' }],
     pantry: [{ type: String }],
+    isDemo: { type: Boolean, default: false }, // sample community accounts (see scripts/seed-community.js)
   },
   { timestamps: true }
 );

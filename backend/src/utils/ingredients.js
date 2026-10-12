@@ -19,6 +19,7 @@ const UNITS = new Set([
 ]);
 
 const SYNONYMS = {
+  'egg plant': 'eggplant', 'egg plants': 'eggplant', 'brinjal': 'eggplant',
   'scallion': 'spring onion', 'green onion': 'spring onion', 'spring onions': 'spring onion',
   'cilantro': 'coriander', 'coriander leaf': 'coriander', 'fresh coriander': 'coriander',
   'aubergine': 'eggplant', 'courgette': 'zucchini', 'capsicum': 'bell pepper', 'red pepper': 'bell pepper',
@@ -54,7 +55,10 @@ const INDIVISIBLE = new Set([
   'corn flour', 'cornflour', 'cornstarch', 'rice vinegar', 'wine vinegar', 'balsamic vinegar', 'spring onion',
   'ground beef', 'ground pork', 'ground lamb', 'butternut squash', 'ground almond', 'ground ginger',
   'ground cumin', 'ground coriander', 'coriander seed', 'cumin seed', 'mustard seed', 'puff pastry',
-  'chili flake', 'black pepper', 'peanut oil',
+  'chili flake', 'black pepper', 'peanut oil', 'condensed milk', 'evaporated milk', 'almond milk', 'oat milk', 'soy milk', 'tomato puree',
+  'rice flour', 'rice noodle', 'rice paper', 'cocoa butter', 'apple butter', 'butter bean', 'baby corn', 'sweet corn', 'corn syrup', 'maple syrup', 'golden syrup',
+  'cottage cheese', 'goat cheese', 'cheese sauce', 'chicken stock', 'beef stock', 'fish stock', 'sesame seed', 'poppy seed', 'pumpkin seed', 'sunflower seed',
+  'peanut', 'coconut', 'nutmeg', 'ginger paste', 'garlic paste', 'curry paste', 'miso paste', 'bean sprout', 'water chestnut', 'egg noodle',
 ]);
 
 // Items most kitchens have; optionally treated as available.
@@ -86,6 +90,17 @@ export const normalizeIngredient = (raw) => {
 
 export const normalizeList = (list) => [...new Set((list || []).map(normalizeIngredient).filter(Boolean))];
 
+// Words that describe a cut or part of an ingredient you already have: "chicken" covers "chicken wing",
+// "lemon" covers "lemon juice" or "lemon zest". Anything else ("egg plant", "chicken stock") must match exactly.
+const PART_WORDS = new Set(['breast', 'thigh', 'leg', 'wing', 'drumstick', 'fillet', 'steak', 'chop', 'rib', 'cutlet', 'mince', 'juice', 'zest', 'wedge', 'peel', 'rind', 'segment', 'florets', 'floret', 'stalk']);
+
+// Extra words that turn an ingredient into something different, so the plain version cannot stand in for it.
+const NATURE_WORDS = new Set([
+  'coconut', 'condensed', 'evaporated', 'soya', 'soy', 'almond', 'oat', 'rice', 'cassava', 'chickpea', 'buckwheat', 'rye', 'semolina',
+  'tempura', 'vegan', 'flax', 'corned', 'kaffir', 'makrut', 'wild', 'pickled', 'eyed', 'glutinous', 'sticky', 'dessert', 'sour', 'liquid',
+  'sweetened', 'unsweetened', 'seafood', 'shrimp', 'doner', 'goat', 'cocoy', 'palm', 'coco', 'vanilla',
+]);
+
 // Does a pantry item satisfy a recipe key?
 export const satisfies = (pantryKey, recipeKey) => {
   if (pantryKey === recipeKey) return true;
@@ -93,11 +108,16 @@ export const satisfies = (pantryKey, recipeKey) => {
   if (STAPLES.includes(pantryKey) || STAPLES.includes(recipeKey)) return false; // salt/pepper/water/oil: exact only
   const p = pantryKey.split(' ');
   const r = recipeKey.split(' ');
-  // "chicken" satisfies "chicken breast" (and vice versa) when the shorter is a single word
-  // contained in a short compound, or both share the head noun.
-  const sharesHead = (a, b) => a.length < b.length && a.every((w) => b.includes(w)) && a[a.length - 1] === b[b.length - 1];
-  const singleInside = (a, b) => a.length === 1 && b.length <= 3 && b.includes(a[0]);
-  return sharesHead(p, r) || sharesHead(r, p) || singleInside(p, r) || singleInside(r, p);
+  // "red onion" <-> "onion": same head noun, extra adjectives only
+  // ...but not when the extra word changes what the thing is ("coconut milk", "almond flour", "corned beef")
+  const sharesHead = (a, b) =>
+    a.length < b.length &&
+    a.every((w) => b.includes(w)) &&
+    a[a.length - 1] === b[b.length - 1] &&
+    !b.some((w) => !a.includes(w) && NATURE_WORDS.has(w));
+  // "lemon" -> "lemon juice": a single word plus a known part word
+  const withPart = (a, b) => a.length === 1 && b.length === 2 && b[0] === a[0] && PART_WORDS.has(b[1]);
+  return sharesHead(p, r) || sharesHead(r, p) || withPart(p, r) || withPart(r, p);
 };
 
 /**

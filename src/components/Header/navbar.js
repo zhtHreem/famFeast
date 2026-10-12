@@ -1,42 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { Stack,  Box,Drawer, IconButton, Typography, Button, TextField } from "@mui/material";
-import FoodBankIcon from '@mui/icons-material/FoodBank';
+import React, { useState } from "react";
+import { Stack,  Box,Drawer, IconButton, Typography, Button, TextField, List, ListItemButton, ListItemText, Divider } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
-import TableRowsIcon from '@mui/icons-material/TableRows';
-import { useLogin } from "../Login/logincontext";
 import { useNavigate } from "react-router-dom";
-import { Link } from 'react-router-dom';
+import { useAuth } from "../../auth/AuthContext";
+import { ACCENT } from "../../theme";
+
+// Original FamFeast navbar look. Login now comes from AuthContext; menu links live in the right-hand drawer.
 export default function Navbar() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [search, setSearch] = useState(false);
+  const { user, logout } = useAuth();
+  const isAuthenticated = Boolean(user);
+  const userId = user?.id;
   const [searchTerm, setSearchTerm] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const[userId,setUserId]=useState("");
   const navigate = useNavigate();
 
-   
- 
- useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user')); // Make sure to parse the user if it's a string
-    console.log("user lala", user);
-    if (user) {
-      setUserId(user.id);
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  
-
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    setIsAuthenticated(false);
-    setLoginOpen(false); // Close the login modal or popup
+    logout();
+    setDrawerOpen(false);
+    navigate('/');
   };
 
   const performSearch = () => {
-    setSearch(true); // Set search to true
-    if (searchTerm.trim()) { // Check if searchTerm is not empty
-      navigate(`/search/${encodeURIComponent(searchTerm.trim())}`);
+    if (searchTerm.trim()) {
+      navigate(`/recipes?q=${encodeURIComponent(searchTerm.trim())}`);
+      setDrawerOpen(false);
     }
   };
 
@@ -46,7 +33,18 @@ export default function Navbar() {
     }
   };
 
-  const { setLoginOpen } = useLogin();
+  const go = (path) => {
+    setDrawerOpen(false);
+    navigate(path);
+  };
+
+  const menu = [
+    { label: 'Recipes', path: '/recipes' },
+    { label: 'What can I cook?', path: '/pantry' },
+    { label: 'Family cookbooks', path: '/cookbooks' },
+    ...(isAuthenticated ? [{ label: 'Add a recipe', path: '/recipes/new' }, { label: 'Saved recipes', path: '/saved' }] : []),
+  ];
+
 
   return (
     <>
@@ -67,7 +65,7 @@ export default function Navbar() {
             <Typography color="white" fontWeight="Bold" fontFamily="Questrial" sx={{color:"lightgrey",position:"absolute"}}  variant="h6">Fam</Typography>
             <Typography color="white" fontWeight="Bold" fontFamily="Questrial"  variant="h4" marginTop={2}>
                <span>F</span>
-               <span style={{fontFamily:"Blaka",color:"#fc7217"}}> E </span>
+               <span style={{fontFamily:"Blaka",color:ACCENT}}> E </span>
                <span>A</span>
                <span>S</span>
                <span>T</span>
@@ -77,6 +75,9 @@ export default function Navbar() {
           </Stack>
           <Stack direction="row" spacing={{xs:1,sm:2}} alignItems="center">
             <Button onClick={()=>navigate("/")}  sx={{ color: "white",textDecoration: "none",fontWeight: "bold" }} >Home</Button>
+            <Button onClick={()=>navigate("/pantry")}  sx={{ color: "white",textDecoration: "none",fontWeight: "bold", display: { xs: "none", sm: "inline-flex" } }} >Pantry</Button>
+            <Button onClick={()=>navigate("/recipes")}  sx={{ color: "white",textDecoration: "none",fontWeight: "bold", display: { xs: "none", md: "inline-flex" } }} >Recipes</Button>
+            <Button onClick={()=>navigate("/cookbooks")}  sx={{ color: "white",textDecoration: "none",fontWeight: "bold", display: { xs: "none", md: "inline-flex" } }} >Cookbooks</Button>
             {isAuthenticated && (
               <Button  onClick={() => navigate(`/profile/${userId}`)} sx={{ color: "white",textDecoration: "none" ,fontWeight: "bold"}} >Profile</Button>
             )}
@@ -117,13 +118,20 @@ export default function Navbar() {
             autoFocus // Focus the input when the drawer opens
              sx={{ color: "white", textDecorationColor: "white" }}
           />
+          <Divider sx={{ my: 1.5 }} />
+          <List dense>
+            {menu.map((m) => (
+              <ListItemButton key={m.path} onClick={() => go(m.path)}><ListItemText primary={m.label} /></ListItemButton>
+            ))}
+            {isAuthenticated && <ListItemButton onClick={() => go(`/profile/${userId}`)}><ListItemText primary="My profile" /></ListItemButton>}
+          </List>
         </Box>
       </Drawer>
             
             {!isAuthenticated ? (
-              <Button onClick={() => setLoginOpen(true)} sx={{  fontWeight:"bold" , color: 'orange','&:hover': { color: 'white',fontWeight:"bold" }, }}>Login</Button>
+              <Button onClick={() => navigate("/login")} sx={{  fontWeight:"bold" , color: ACCENT,'&:hover': { color: 'white',fontWeight:"bold" }, }}>Login</Button>
             ) : (
-              <Button size="small"onClick={handleLogout} sx={{  fontWeight:"bold" , color: 'orange','&:hover': { color: 'white',fontWeight:"bold"  }, }}>Logout</Button>
+              <Button size="small"onClick={handleLogout} sx={{  fontWeight:"bold" , color: ACCENT,'&:hover': { color: 'white',fontWeight:"bold"  }, }}>Logout</Button>
             )}
           </Stack>
         </Stack>

@@ -8,6 +8,7 @@ import Comment from '../Comment/schema.js';
 import { requireAuth, optionalAuth } from '../../../middleware/auth.js';
 import { uploadImage } from '../../../utils/imageUpload.js';
 import { asyncHandler, HttpError, requireId, escapeRegex, str } from '../../../utils/http.js';
+import { cached, clearCache } from '../../../utils/cache.js';
 
 const router = express.Router();
 
@@ -63,6 +64,9 @@ const parseRecipeInput = (body) => {
   return data;
 };
 
+// Only what a recipe card needs: keeps list responses small and lets Mongo skip big fields.
+const LIST_FIELDS = 'name image category cuisine diets prepTime cookTime ratingAvg ratingCount saveCount visibility user createdAt';
+
 const isMember = (cookbookId, userId) => Cookbook.exists({ _id: cookbookId, 'members.user': userId });
 
 // Can this viewer see this recipe?
@@ -93,24 +97,29 @@ router.get(
       const rx = new RegExp(escapeRegex(q), 'i');
       filter.$or = [{ name: rx }, { ingredientKeys: rx }, { cuisine: rx }, { category: rx }, { tags: rx }];
     }
-    if (typeof category === 'string' && category) filter.category = new RegExp(`^${escapeRegex(category)}$`, 'i');
-    if (typeof cuisine === 'string' && cuisine) filter.cuisine = new RegExp(`^${escapeRegex(cuisine)}$`, 'i');
+    if (typeof category === 'string' && category) filter.category = category; // exact match so the index is used
+    if (typeof cuisine === 'string' && cuisine) filter.cuisine = cuisine;
     if (typeof diet === 'string' && DIETS.includes(diet)) filter.diets = diet;
     const maxTime = Number(req.query.maxTime);
     if (maxTime > 0) filter.$expr = { $lte: [{ $add: [{ $ifNull: ['$prepTime', 0] }, { $ifNull: ['$cookTime', 0] }] }, maxTime] };
     if (maxTime > 0) filter.cookTime = { $exists: true };
 
     const sorts = { new: { createdAt: -1 }, top: { ratingAvg: -1, ratingCount: -1 }, saved: { saveCount: -1 }, name: { name: 1 } };
-    const [items, total] = await Promise.all([
-      Recipe.find(filter)
-        .sort(sorts[sort] || sorts.new)
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .populate('user', 'username')
-        .select('-ingredientKeys -directions'),
-      Recipe.countDocuments(filter),
-    ]);
-    res.json({ items: items.map(shape), total, page, pages: Math.max(1, Math.ceil(total / limit)) });
+    const key = `list:${JSON.stringify(req.query)}`;
+    const payload = await cached(key, 30 * 1000, async () => {
+      const [items, total] = await Promise.all([
+        Recipe.find(filter)
+          .sort(sorts[sort] || sorts.new)
+          .skip((page - 1) * limit)
+          .limit(limit)
+          .select(LIST_FIELDS)
+          .populate('user', 'username')
+          .lean(),
+        Recipe.countDocuments(filter),
+      ]);
+      return { items: items.map(shape), total, page, pages: Math.max(1, Math.ceil(total / limit)) };
+    });
+    res.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=120').json(payload);
   })
 );
 
@@ -118,19 +127,22 @@ router.get(
 router.get(
   '/recipes/facets',
   asyncHandler(async (req, res) => {
-    const count = (field) =>
-      Recipe.aggregate([
-        { $match: { visibility: 'public', [field]: { $nin: [null, ''] } } },
-        { $group: { _id: `$${field}`, count: { $sum: 1 } } },
-        { $sort: { count: -1 } },
-        { $limit: 40 },
-      ]);
-    const [categories, cuisines] = await Promise.all([count('category'), count('cuisine')]);
-    res.json({
-      categories: categories.map((c) => ({ name: c._id, count: c.count })),
-      cuisines: cuisines.map((c) => ({ name: c._id, count: c.count })),
-      diets: DIETS,
+    const payload = await cached('facets', 5 * 60 * 1000, async () => {
+      const count = (field) =>
+        Recipe.aggregate([
+          { $match: { visibility: 'public', [field]: { $nin: [null, ''] } } },
+          { $group: { _id: `$${field}`, count: { $sum: 1 } } },
+          { $sort: { count: -1 } },
+          { $limit: 40 },
+        ]);
+      const [categories, cuisines] = await Promise.all([count('category'), count('cuisine')]);
+      return {
+        categories: categories.map((c) => ({ name: c._id, count: c.count })),
+        cuisines: cuisines.map((c) => ({ name: c._id, count: c.count })),
+        diets: DIETS,
+      };
     });
+    res.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=600').json(payload);
   })
 );
 
@@ -138,11 +150,14 @@ router.get(
   '/recipes/user/:userId',
   asyncHandler(async (req, res) => {
     requireId(req.params.userId, 'user id');
-    const recipes = await Recipe.find({ user: req.params.userId, visibility: 'public' })
-      .sort({ createdAt: -1 })
-      .populate('user', 'username')
-      .select('-ingredientKeys -directions');
-    res.json(recipes.map(shape));
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(48, Math.max(1, parseInt(req.query.limit, 10) || 12));
+    const filter = { user: req.params.userId, visibility: 'public' };
+    const [recipes, total] = await Promise.all([
+      Recipe.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).select(LIST_FIELDS).populate('user', 'username').lean(),
+      Recipe.countDocuments(filter),
+    ]);
+    res.json({ items: recipes.map(shape), total, page, pages: Math.max(1, Math.ceil(total / limit)) });
   })
 );
 
@@ -153,8 +168,9 @@ router.get(
   asyncHandler(async (req, res) => {
     const me = await User.findById(req.user._id).select('savedRecipes');
     const recipes = await Recipe.find({ _id: { $in: me.savedRecipes } })
+      .select(LIST_FIELDS + ' cookbook')
       .populate('user', 'username')
-      .select('-ingredientKeys -directions');
+      .lean();
     const visible = [];
     for (const r of recipes) if (await canView(r, req.user)) visible.push(shape(r));
     res.json(visible);
@@ -202,6 +218,7 @@ router.post(
       data.visibility = String(req.body.publishToSite) === 'true' ? 'public' : 'cookbook';
     }
     const recipe = await Recipe.create(data);
+    clearCache();
     res.status(201).json(shape(recipe));
   })
 );
@@ -224,6 +241,7 @@ router.put(
     if (req.file) data.image = await uploadImage(req.file);
     recipe.set(data);
     await recipe.save();
+    clearCache();
     res.json(shape(recipe));
   })
 );
@@ -239,6 +257,7 @@ router.delete(
       Rating.deleteMany({ recipe: recipe._id }),
       User.updateMany({ savedRecipes: recipe._id }, { $pull: { savedRecipes: recipe._id } }),
     ]);
+    clearCache();
     res.json({ message: 'Recipe deleted.' });
   })
 );
@@ -264,6 +283,7 @@ router.post(
     recipe.ratingAvg = Math.round(agg.avg * 10) / 10;
     recipe.ratingCount = agg.count;
     await recipe.save();
+    clearCache();
     res.json({ ratingAvg: recipe.ratingAvg, ratingCount: recipe.ratingCount, myRating: value });
   })
 );

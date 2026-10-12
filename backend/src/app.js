@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 import multer from 'multer';
 import userRoutes from './database/models/User/routes.js';
 import recipeRoutes from './database/models/Recipe/routes.js';
@@ -12,6 +13,7 @@ import { sanitize, apiLimiter } from './middleware/security.js';
 
 const app = express();
 app.set('trust proxy', 1); // correct client IPs behind Vercel/other proxies (rate limiting)
+app.use(compression());
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 // Comma-separated list of allowed frontend origins (see backend/.env.example)
@@ -19,7 +21,17 @@ const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
-app.use(cors({ origin: allowedOrigins, methods: ['GET', 'POST', 'PUT', 'DELETE'], credentials: true }));
+// In development any http://localhost:<port> may call the API (the dev server moves to 3001, 3002… when
+// 3000 is busy). In production only the origins listed in CORS_ORIGINS are allowed.
+const isDev = process.env.NODE_ENV !== 'production' && !process.env.VERCEL;
+const originAllowed = (origin) => allowedOrigins.includes(origin) || (isDev && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin));
+app.use(
+  cors({
+    origin: (origin, cb) => cb(null, !origin || originAllowed(origin)),
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+  })
+);
 
 app.use(express.json({ limit: '100kb' }));
 app.use(sanitize);

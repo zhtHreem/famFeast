@@ -4,12 +4,18 @@ import Cookbook from '../database/models/Cookbook/schema.js';
 import User from '../database/models/User/user.js';
 import { requireAuth, optionalAuth } from '../middleware/auth.js';
 import { asyncHandler, HttpError, str } from '../utils/http.js';
-import { normalizeIngredient, normalizeList, matchRecipe } from '../utils/ingredients.js';
+import { normalizeIngredient, normalizeList, satisfies, STAPLES } from '../utils/ingredients.js';
+import { cached } from '../utils/cache.js';
 import { substitutesFor } from '../data/substitutions.js';
 
 const router = express.Router();
 
 const DIETS = ['vegetarian', 'vegan', 'gluten-free', 'dairy-free', 'halal'];
+
+// Every distinct ingredient key in the collection (a few thousand short strings), cached.
+// Used to expand a pantry item into the recipe keys it can satisfy ("chicken" -> "chicken breast", ...)
+// so the database only has to look at recipes that can possibly match, via the multikey index.
+const vocabulary = () => cached('vocab', 10 * 60 * 1000, () => Recipe.distinct('ingredientKeys'));
 
 // Which recipes may this viewer search?
 const scopeFilter = async (scope, user) => {
@@ -45,17 +51,43 @@ router.post(
     const filter = await scopeFilter(req.body.scope, req.user);
     if (DIETS.includes(req.body.diet)) filter.diets = req.body.diet;
 
-    const recipes = await Recipe.find(filter)
-      .select('name image category cuisine ratingAvg ratingCount cookTime prepTime ingredientKeys visibility cookbook diets')
-      .lean();
+    // 1) Expand the pantry into every recipe key it can satisfy (cheap, in memory)
+    const vocab = await vocabulary();
+    const satisfiedKeys = vocab.filter((key) => pantry.some((p) => satisfies(p, key)));
+    if (satisfiedKeys.length === 0) return res.json({ pantry, totalMatches: 0, canMakeNow: 0, items: [] });
+    const staples = assumeStaples ? STAPLES : [];
+    const satisfied = [...new Set([...satisfiedKeys, ...staples])];
 
-    const results = [];
-    for (const r of recipes) {
-      const { have, missing, score } = matchRecipe(pantry, r.ingredientKeys, { assumeStaples });
-      const isStaple = (k) => assumeStaples && ['salt', 'pepper', 'water', 'vegetable oil', 'olive oil'].includes(k);
-      const missingReal = missing.filter((k) => !isStaple(k));
-      if (score === 0 || missingReal.length > maxMissing) continue;
-      results.push({
+    // 2) Score inside MongoDB: only the top `limit` recipes travel over the network
+    const [out] = await Recipe.aggregate([
+      { $match: { ...filter, ingredientKeys: { $in: satisfiedKeys } } },
+      { $addFields: { countable: { $setDifference: ['$ingredientKeys', staples] } } },
+      {
+        $addFields: {
+          haveKeys: { $setIntersection: ['$countable', satisfied] },
+          missingKeys: { $setDifference: ['$countable', satisfied] },
+        },
+      },
+      { $addFields: { total: { $size: '$countable' }, haveCount: { $size: '$haveKeys' }, missingCount: { $size: '$missingKeys' } } },
+      { $match: { haveCount: { $gt: 0 }, missingCount: { $lte: maxMissing } } },
+      { $addFields: { percent: { $round: [{ $multiply: [{ $divide: ['$haveCount', '$total'] }, 100] }, 0] } } },
+      {
+        $facet: {
+          items: [
+            { $sort: { percent: -1, missingCount: 1, ratingAvg: -1, _id: 1 } },
+            { $limit: limit },
+            { $project: { name: 1, image: 1, category: 1, cuisine: 1, ratingAvg: 1, ratingCount: 1, visibility: 1, percent: 1, haveCount: 1, total: 1, missingKeys: 1 } },
+          ],
+          stats: [{ $group: { _id: null, total: { $sum: 1 }, canMakeNow: { $sum: { $cond: [{ $eq: ['$missingCount', 0] }, 1, 0] } } } }],
+        },
+      },
+    ]);
+
+    res.json({
+      pantry,
+      totalMatches: out.stats[0]?.total || 0,
+      canMakeNow: out.stats[0]?.canMakeNow || 0,
+      items: out.items.map((r) => ({
         id: r._id.toString(),
         name: r.name,
         image: r.image,
@@ -64,42 +96,35 @@ router.post(
         ratingAvg: r.ratingAvg,
         ratingCount: r.ratingCount,
         visibility: r.visibility,
-        percent: Math.round(score * 100),
-        haveCount: have.filter((k) => !isStaple(k)).length,
-        total: r.ingredientKeys.filter((k) => !isStaple(k)).length,
-        missing: missingReal.map((name) => ({ name, substitutes: substitutesFor(name) })),
-      });
-    }
-    results.sort((a, b) => b.percent - a.percent || a.missing.length - b.missing.length || b.ratingAvg - a.ratingAvg);
-    res.json({
-      pantry,
-      totalMatches: results.length,
-      canMakeNow: results.filter((r) => r.missing.length === 0).length,
-      items: results.slice(0, limit),
+        percent: r.percent,
+        haveCount: r.haveCount,
+        total: r.total,
+        missing: r.missingKeys.map((name) => ({ name, substitutes: substitutesFor(name) })),
+      })),
     });
   })
 );
 
 // Ingredient autocomplete, built from the recipes themselves (cached briefly).
-let cache = { at: 0, keys: [] };
-const ingredientKeys = async () => {
-  if (Date.now() - cache.at < 10 * 60 * 1000 && cache.keys.length) return cache.keys;
-  const rows = await Recipe.aggregate([
-    { $match: { visibility: 'public' } },
-    { $unwind: '$ingredientKeys' },
-    { $group: { _id: '$ingredientKeys', count: { $sum: 1 } } },
-    { $sort: { count: -1 } },
-    { $limit: 1500 },
-  ]);
-  cache = { at: Date.now(), keys: rows.map((r) => r._id) };
-  return cache.keys;
-};
+const ingredientKeys = () =>
+  cached('popular-keys', 10 * 60 * 1000, async () => {
+    const rows = await Recipe.aggregate([
+      { $match: { visibility: 'public' } },
+      { $unwind: '$ingredientKeys' },
+      { $group: { _id: '$ingredientKeys', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 1500 },
+    ]);
+    return rows.map((r) => r._id);
+  });
 
 router.get(
   '/pantry/ingredients',
   asyncHandler(async (req, res) => {
     const q = str(req.query.q, 40).toLowerCase();
     const keys = await ingredientKeys();
+    res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+    if (req.query.all === '1') return res.json(keys);
     if (!q) return res.json(keys.slice(0, 40));
     const starts = keys.filter((k) => k.startsWith(q));
     const contains = keys.filter((k) => !k.startsWith(q) && k.includes(q));

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="FamFeast">
+  <rect width="128" height="128" rx="30" fill="#1B1212"/>
+  <path d="M38 98V30h50v16H54v10h30v15H54v27z" fill="#F3E9D2"/>
+  <path d="M88 46C88 25 102 15 120 15c0 20-12 31-32 31z" fill="#9DBE7A"/>
+  <path d="M92 41c8-8 14-13 22-20" stroke="#1B1212" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>

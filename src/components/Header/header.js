@@ -1,8 +1,7 @@
 import React from 'react';
 import { Box, Typography, Container, styled } from '@mui/material';
 import { keyframes } from '@emotion/react';
-import { useLogin } from '../Login/logincontext';
-import Login from '../Login/login';
+import { LEAF_CREAM, LEAF_GOLD, LEAF_OLIVE, LEAF_RUST } from '../leafImages';
 
 // Define the falling animation keyframes
 const fall = keyframes`
@@ -47,72 +46,39 @@ const Leaf = styled(Box)(({ delay, left }) => ({
   animationDelay: delay,
 }));
 
-// Background image style
-const BackgroundImage = styled(Box)(({ theme }) => ({
-  width: '90%',
-  height: '110%',
-  opacity: 0.2,
-  objectFit: 'cover',
-  position: 'absolute',
-  zIndex: 1,
-  userSelect: 'none',
-  pointerEvents: 'none',
-}));
-
 const Header = () => {
-  const { isLoginOpen, setLoginOpen } = useLogin();
-
   return (
-    <Box sx={{backgroundColor:"black", position: 'relative', overflow: 'hidden', height: '100vh', width: '100%' }}>
-      {isLoginOpen && (
-        <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 5 }}>
-          <Login setLogin={setLoginOpen} />
-        </Box>
-      )}
-
-     
-      {/* Falling Leaves Animation */}
+    <Box sx={{ backgroundColor: 'black', position: 'relative', overflow: 'hidden', width: '100%', pb: { xs: 2, md: 4 } }}>
+      {/* Falling leaves (kept light so the page stays calm) */}
       <LeafContainer>
-        <Leaf left={20} delay="-2s">
-          <img src="http://www.pngmart.com/files/1/Fall-Autumn-Leaves-Transparent-PNG.png" height="75px" width="75px" alt="leaf" />
+        <Leaf left={18} delay="-2s">
+          <img src={LEAF_RUST} height="70px" width="70px" alt="" />
         </Leaf>
-        <Leaf left={70} delay="-4s">
-          <img src="http://www.pngmart.com/files/1/Autumn-Fall-Leaves-Pictures-Collage-PNG.png" height="75px" width="75px" alt="leaf" />
+        <Leaf left={72} delay="-6s">
+          <img src={LEAF_GOLD} height="70px" width="70px" alt="" />
         </Leaf>
-        <Leaf left={10} delay="-7s">
-          <img src="http://www.pngmart.com/files/1/Autumn-Fall-Leaves-Clip-Art-PNG.png" height="75px" width="75px" alt="leaf" />
+        <Leaf left={48} delay="-9s">
+          <img src={LEAF_OLIVE} height="60px" width="60px" alt="" />
         </Leaf>
-        <Leaf left={50} delay="-5s">
-          <img src="http://www.pngmart.com/files/1/Green-Leaves-PNG-File.png" height="75px" width="75px" alt="leaf" />
-        </Leaf>
-        <Leaf left={85} delay="-5s">
-          <img src="http://www.pngmart.com/files/1/Transparent-Autumn-Leaves-Falling-PNG.png" height="75px" width="75px" alt="leaf" />
-        </Leaf>
-        <Leaf left={15} delay="-10s">
-          <img src="http://www.pngmart.com/files/1/Realistic-Autumn-Fall-Leaves-PNG.png" height="75px" width="75px" alt="leaf" />
-        </Leaf>
-        <Leaf left={90} delay="-4s">
-          <img src="http://www.pngmart.com/files/1/Green-Leaves-PNG-File.png" height="25px" width="25px" alt="leaf" />
+        <Leaf left={88} delay="-12s">
+          <img src={LEAF_CREAM} height="60px" width="60px" alt="" />
         </Leaf>
       </LeafContainer>
 
       {/* Main Header Content */}
-      <Box sx={{ height: '100%', width: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 2 }}>
-          <Box component="img" src={require("../../images/l1.png")}sx={{  width:{xs:'90%',lg: '90%'}, height:{xs:'1.5%'},  objectFit: 'contain', position: 'absolute',bottom:{ xs:"100%" ,md:"99%",lg:'99%'}, right: {xs:'49%',md:'51%',lg:'53%'},zIndex: 1, transform: 'rotate(310deg)', userSelect: 'none', pointerEvents: 'none'}}/>
-      <Box component="img" src={require("../../images/l1.png")}sx={{  width:{xs:'90%',lg: '90%'}, height:{xs:'2%'},  objectFit: 'contain', position: 'absolute',bottom:{ xs:"95%" ,md:"96%",lg:'95%'}, right: {xs:'45%',md:'48%',lg:'51%'},zIndex: 1, transform: 'rotate(340deg)', userSelect: 'none', pointerEvents: 'none'}}/>
-      <Box component="img" src={require("../../images/l1.png")}sx={{  width:{xs:'90%',lg: '90%'}, height:{xs:'2%'},  objectFit: 'contain', position: 'absolute',bottom:{ xs:"91%" ,md:"92%",lg:'91%'}, right: {xs:'50%',lg:'53%'},zIndex: 1, transform: 'rotate(195deg)', userSelect: 'none', pointerEvents: 'none'}}/>
+      <Box sx={{ width: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 2 }}>
         <Container sx={{ position: 'relative', zIndex: 3 }}>
-          <Typography variant="h2" align="center" pt={5} color="#FFFFF0" fontWeight="bold" fontFamily='Noto Nastaliq Urdu'>
-            خاندانی ذائقے
+          <Typography variant="h2" component="h1" align="center" pt={{ xs: 4, md: 6 }} color="#FFFFF0" fontWeight="bold">
+            Family Flavours
           </Typography>
-          <Typography variant="h6" align="center" pt={3} color="#FFFFF0" fontWeight="bold">
-            وہ جگہ جہاں آپ کو خاندانی رسائی کے قدیم وارثی خوراک اور ترائیں ملتی ہیں۔ ہمارے ساتھ سفر کریں اور خاندانی ذائقے کی دنیا کو اپنے گھر تک لے آئیں۔ اپنے کھانے کو یہاں بدلیں، اور خوشی کے ہر موقع پر خاندانی یادوں کو دوبارہ زندہ کریں۔
+          <Typography variant="h6" align="center" pt={2} color="#FFFFF0" sx={{ maxWidth: 620, mx: 'auto', fontWeight: 400, lineHeight: 1.6 }}>
+            Where treasured family recipes live on. Cook with what you have and bring the taste of home to every table.
           </Typography>
         </Container>
         <Box sx={{ position: 'relative', p: { xs: 25, md: 30, lg: 40 } }}>
-          <Box component="img" src={require("../../images/gold.webp")} sx={{ width: { xs: '60%', lg: '50%' }, height: { xs: '70%', lg: '80%' }, objectFit: 'cover', position: 'absolute', bottom: { xs: "20%", md: "13%", lg: '11%' }, right: { xs: '34%', lg: '40%' }, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
-          <Box component="img" src={require("../../images/leaves.webp")} sx={{ width: { xs: '60%', lg: '50%' }, height: { xs: '80%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "30%", md: '20%', lg: '30%' }, right: { xs: '0%' }, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
-          <Box component="img" src={require("../../images/food (1).webp")} sx={{ width: '100%', height: { xs: '115%', md: '90%', lg: '115%' }, objectFit: 'contain', position: 'absolute', bottom: 0, left: 0, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
+          <Box component="img" alt="" src={require("../../images/gold.webp")} sx={{ width: { xs: '60%', lg: '50%' }, height: { xs: '70%', lg: '80%' }, objectFit: 'cover', position: 'absolute', bottom: { xs: "20%", md: "13%", lg: '11%' }, right: { xs: '34%', lg: '40%' }, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
+          <Box component="img" alt="" src={require("../../images/leaves.webp")} sx={{ width: { xs: '60%', lg: '50%' }, height: { xs: '80%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "30%", md: '20%', lg: '30%' }, right: { xs: '0%' }, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
+          <Box component="img" alt="" src={require("../../images/food (1).webp")} sx={{ width: '100%', height: { xs: '115%', md: '90%', lg: '115%' }, objectFit: 'contain', position: 'absolute', bottom: 0, left: 0, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
         </Box>
       </Box>
     </Box>

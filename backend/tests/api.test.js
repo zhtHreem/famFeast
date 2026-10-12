@@ -160,7 +160,7 @@ describe('recipes', () => {
   test('browse supports search, filters and pagination', async () => {
     const q = await request(app).get('/api/recipes').query({ q: `Better Dal ${run}` });
     expect(q.body.total).toBe(1);
-    const cuisine = await request(app).get('/api/recipes').query({ cuisine: 'pakistani' });
+    const cuisine = await request(app).get('/api/recipes').query({ cuisine: 'Pakistani' });
     expect(cuisine.body.items.some((r) => r._id === recipeId)).toBe(true);
     const page = await request(app).get('/api/recipes').query({ limit: 5, page: 2 });
     expect(page.body.items).toHaveLength(5);
@@ -308,7 +308,7 @@ describe('family cookbooks', () => {
     expect((await request(app).get(`/api/recipes/${privateRecipeId}`).set(auth(alice.token))).status).toBe(200);
     expect((await request(app).get('/api/comments').query({ recipeId: privateRecipeId })).status).toBe(404);
     const profile = await request(app).get(`/api/recipes/user/${bob.user.id}`);
-    expect(profile.body.find((r) => r._id === privateRecipeId)).toBeUndefined();
+    expect(profile.body.items.find((r) => r._id === privateRecipeId)).toBeUndefined();
     expect((await request(app).post(`/api/recipes/${privateRecipeId}/save`).set(auth(carol.token))).status).toBe(404);
   });
 
@@ -376,5 +376,30 @@ describe('hardening', () => {
     const res = await request(app).delete('/api/users/me').set(auth(carol.token)).send({ password: mk('carol').password });
     expect(res.status).toBe(200);
     expect((await request(app).get('/api/auth/me').set(auth(carol.token))).status).toBe(401);
+  });
+});
+
+describe('pantry matching accuracy', () => {
+  test('"eggs" does not satisfy "egg plant" / eggplant', async () => {
+    const { normalizeIngredient, satisfies, matchRecipe } = await import('../src/utils/ingredients.js');
+    expect(normalizeIngredient('4 Egg Plants')).toBe('eggplant');
+    expect(satisfies('egg', 'eggplant')).toBe(false);
+    const { score } = matchRecipe(['egg'], ['eggplant', 'egg'], { assumeStaples: true });
+    expect(score).toBe(0.5);
+  });
+
+  test.each([
+    ['chicken', 'chicken stock', false],
+    ['milk', 'coconut milk', false],
+    ['flour', 'almond flour', false],
+    ['butter', 'peanut butter', false],
+    ['pea', 'black eyed pea', false],
+    ['red onion', 'onion', true],
+    ['rice', 'basmati rice', true],
+    ['lemon', 'lemon juice', true],
+    ['chicken', 'chicken wing', true],
+  ])('satisfies(%s, %s) = %s', async (pantry, recipe, expected) => {
+    const { satisfies } = await import('../src/utils/ingredients.js');
+    expect(satisfies(pantry, recipe)).toBe(expected);
   });
 });
