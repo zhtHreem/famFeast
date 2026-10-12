@@ -143,6 +143,7 @@ npm start                   # http://localhost:3000 (or the next free port)
 
 - Compound indexes that match the real query and sort patterns; list queries use `lean()` and tight projections.
 - 30-second server cache for public lists, 5-minute cache for filter options, gzip compression, and `Cache-Control` headers.
+- The header and navbar artwork was re-encoded from about 8.7 MB of 3,000–5,000 px PNGs to about 0.65 MB of WebP at the sizes actually shown, with no visible change. The art is revealed in one fade only after every image has loaded, so it never pops in piece by piece, and the page paints on a black background from the first frame instead of a white flash. The original high-resolution files stay in `src/images/` as sources.
 - Recipe images are requested at the right size (`/small`, `/medium`, `/large`), about a quarter of the original weight.
 - Measured against Atlas: pantry search 1.2–2.7 s → about 0.3 s; cached list responses a few milliseconds and about 1 KB gzipped.
 

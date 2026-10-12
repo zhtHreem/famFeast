@@ -2,6 +2,10 @@ import React from 'react';
 import { Box } from '@mui/material';
 import { keyframes } from '@emotion/react';
 import { LEAF_CREAM, LEAF_GOLD, LEAF_OLIVE } from './leafImages';
+import useImagesReady from '../hooks/useImagesReady';
+
+const BIG_LEAVES = require('../images/leaves.opt.webp');
+const GOLD_DUST = require('../images/gold.opt.webp');
 
 // Soft, fixed artwork behind every page so the whole site flows like the home header
 // (same black canvas, same leaves and gold dust) instead of changing style page to page.
@@ -19,10 +23,12 @@ const LEAVES = [
 ];
 
 export default function Backdrop() {
+  // the big faint artwork fades in once both files are ready, never one at a time
+  const ready = useImagesReady([BIG_LEAVES, GOLD_DUST]);
   return (
     <Box aria-hidden sx={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', pointerEvents: 'none', userSelect: 'none', backgroundColor: '#000' }}>
-      <Box component="img" alt="" src={require('../images/leaves.webp')} sx={{ display: { xs: 'none', md: 'block' }, position: 'absolute', top: '8%', right: '-14%', width: '44%', opacity: 0.1, transform: 'rotate(8deg)' }} />
-      <Box component="img" alt="" src={require('../images/gold.webp')} sx={{ display: { xs: 'none', md: 'block' }, position: 'absolute', bottom: '-6%', left: '-10%', width: '40%', opacity: 0.12 }} />
+      <Box component="img" alt="" src={BIG_LEAVES} sx={{ display: { xs: 'none', md: 'block' }, position: 'absolute', top: '8%', right: '-14%', width: '44%', opacity: ready ? 0.1 : 0, transition: 'opacity 1s ease', transform: 'rotate(8deg)' }} />
+      <Box component="img" alt="" src={GOLD_DUST} sx={{ display: { xs: 'none', md: 'block' }, position: 'absolute', bottom: '-6%', left: '-10%', width: '40%', opacity: ready ? 0.12 : 0, transition: 'opacity 1s ease' }} />
       {LEAVES.map((l) => (
         <Box key={l.left} component="img" alt="" src={l.src} sx={{ position: 'absolute', top: 0, left: l.left, width: l.size, height: l.size, opacity: 0, animation: `${drift} ${l.dur}s linear infinite`, animationDelay: l.delay }} />
       ))}

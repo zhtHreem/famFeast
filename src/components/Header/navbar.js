@@ -4,6 +4,14 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { ACCENT } from "../../theme";
+import useImagesReady from "../../hooks/useImagesReady";
+
+const NAV_ART = [
+  require("../../images/black.opt.webp"),
+  require("../../images/s1.opt.webp"),
+  require("../../images/l1.opt.webp"),
+  require("../../images/gold-nav.opt.webp"),
+];
 
 // Original FamFeast navbar look. Login now comes from AuthContext; menu links live in the right-hand drawer.
 export default function Navbar() {
@@ -13,6 +21,7 @@ export default function Navbar() {
   const [searchTerm, setSearchTerm] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
+  const artReady = useImagesReady(NAV_ART);
 
   const handleLogout = () => {
     logout();
@@ -49,15 +58,18 @@ export default function Navbar() {
   return (
     <>
       <Box position="relative" sx={{ backgroundColor: "black", py: 2, px:{xs:1 ,sm:3}, overflow: 'hidden' }}>
+        {/* Decorations fade in together once every image has loaded (no piece-by-piece pop-in) */}
+        <Box sx={{ opacity: artReady ? 1 : 0, transition: "opacity .7s ease" }}>
         {/* Background images */}
-        <Box component="img" src={require("../../images/black.png")} sx={{ width: { xs: '90%', lg: '90%' }, height: { xs: '110%' }, opacity: 0.2, objectFit: 'cover', position: 'absolute', left: { lg: "10%" }, zIndex: 1, transform: 'rotate(180deg)', userSelect: 'none', pointerEvents: 'none' }} />
-        <Box component="img" src={require("../../images/black.png")} sx={{ width: { xs: '90%', lg: '90%' }, height: { xs: '110%' }, opacity: 0.2, objectFit: 'cover', position: 'absolute', right: { lg: "10%" }, zIndex: 1, userSelect: 'none', pointerEvents: 'none' }} />
+        <Box component="img" src={require("../../images/black.opt.webp")} sx={{ width: { xs: '90%', lg: '90%' }, height: { xs: '110%' }, opacity: 0.2, objectFit: 'cover', position: 'absolute', left: { lg: "10%" }, zIndex: 1, transform: 'rotate(180deg)', userSelect: 'none', pointerEvents: 'none' }} />
+        <Box component="img" src={require("../../images/black.opt.webp")} sx={{ width: { xs: '90%', lg: '90%' }, height: { xs: '110%' }, opacity: 0.2, objectFit: 'cover', position: 'absolute', right: { lg: "10%" }, zIndex: 1, userSelect: 'none', pointerEvents: 'none' }} />
         {/* Other background images */}
-        <Box component="img" src={require("../../images/s1.png")} sx={{ width: { xs: '60%', lg: '100%' }, height: { xs: '80%', lg: '80%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "20%", sm: '20%', md: "24%", lg: '17%' }, right: { xs: '64%', sm: '67%', md: '68%', lg: '48%' }, zIndex: 1, userSelect: 'none', pointerEvents: 'none' }} />
-        <Box component="img" src={require("../../images/l1.png")} sx={{ width: { xs: '60%', lg: '90%' }, height: { xs: '55%', lg: '80%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "53%", lg: '23%' }, right: { xs: '34%', sm: '36%', md: '47%', lg: '38%' }, zIndex: 1, transform: 'rotate(320deg)', userSelect: 'none', pointerEvents: 'none' }} />
-        <Box component="img" src={require("../../images/l1.png")} sx={{ width: { xs: '110%', lg: '110%' }, height: { xs: '30%', lg: '40%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "6%", sm: '15%', lg: '6%' }, right: { xs: '43%', sm: '34%', md: '37%', lg: '40%' }, zIndex: 1, transform: 'rotate(45deg)', userSelect: 'none', pointerEvents: 'none' }} />
-        <Box component="img" src={require("../../images/l1.png")} sx={{ width: { xs: '110%', lg: '110%' }, height: { xs: '18%', lg: '20%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "27%", sm: '33%', lg: '30%' }, right: { xs: '43%', sm: '36%', md: '38%', lg: '41%' }, zIndex: 1, userSelect: 'none', pointerEvents: 'none' }} />
-        <Box component="img" src={require("../../images/gold.png")} sx={{ width: { xs: '60%', lg: '40%' }, height: { xs: '70%', lg: '100%' }, objectFit: 'cover', position: 'absolute', bottom: { xs: "100%", md: '160%', lg: '170%' }, left: { xs: '45%', md: '47%', lg: '65%' }, zIndex: 1, transform: 'rotate(50deg)', userSelect: 'none', pointerEvents: 'none' }} />
+        <Box component="img" src={require("../../images/s1.opt.webp")} sx={{ width: { xs: '60%', lg: '100%' }, height: { xs: '80%', lg: '80%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "20%", sm: '20%', md: "24%", lg: '17%' }, right: { xs: '64%', sm: '67%', md: '68%', lg: '48%' }, zIndex: 1, userSelect: 'none', pointerEvents: 'none' }} />
+        <Box component="img" src={require("../../images/l1.opt.webp")} sx={{ width: { xs: '60%', lg: '90%' }, height: { xs: '55%', lg: '80%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "53%", lg: '23%' }, right: { xs: '34%', sm: '36%', md: '47%', lg: '38%' }, zIndex: 1, transform: 'rotate(320deg)', userSelect: 'none', pointerEvents: 'none' }} />
+        <Box component="img" src={require("../../images/l1.opt.webp")} sx={{ width: { xs: '110%', lg: '110%' }, height: { xs: '30%', lg: '40%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "6%", sm: '15%', lg: '6%' }, right: { xs: '43%', sm: '34%', md: '37%', lg: '40%' }, zIndex: 1, transform: 'rotate(45deg)', userSelect: 'none', pointerEvents: 'none' }} />
+        <Box component="img" src={require("../../images/l1.opt.webp")} sx={{ width: { xs: '110%', lg: '110%' }, height: { xs: '18%', lg: '20%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "27%", sm: '33%', lg: '30%' }, right: { xs: '43%', sm: '36%', md: '38%', lg: '41%' }, zIndex: 1, userSelect: 'none', pointerEvents: 'none' }} />
+        <Box component="img" src={require("../../images/gold-nav.opt.webp")} sx={{ width: { xs: '60%', lg: '40%' }, height: { xs: '70%', lg: '100%' }, objectFit: 'cover', position: 'absolute', bottom: { xs: "100%", md: '160%', lg: '170%' }, left: { xs: '45%', md: '47%', lg: '65%' }, zIndex: 1, transform: 'rotate(50deg)', userSelect: 'none', pointerEvents: 'none' }} />
+        </Box>
         <Stack direction={"row"} sx={{ color: "white", justifyContent: "space-between" }}>
           <Stack direction="row" sx={{ alignItems: "center" }}>
  

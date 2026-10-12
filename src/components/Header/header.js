@@ -2,6 +2,10 @@ import React from 'react';
 import { Box, Typography, Container, styled } from '@mui/material';
 import { keyframes } from '@emotion/react';
 import { LEAF_CREAM, LEAF_GOLD, LEAF_OLIVE, LEAF_RUST } from '../leafImages';
+import useImagesReady, { preloadImages } from '../../hooks/useImagesReady';
+
+const ART = [require('../../images/gold.opt.webp'), require('../../images/leaves.opt.webp'), require('../../images/food (1).webp')];
+preloadImages(ART); // start downloading as soon as the script runs, before the first render
 
 // Define the falling animation keyframes
 const fall = keyframes`
@@ -47,6 +51,7 @@ const Leaf = styled(Box)(({ delay, left }) => ({
 }));
 
 const Header = () => {
+  const artReady = useImagesReady(ART);
   return (
     <Box sx={{ backgroundColor: 'black', position: 'relative', overflow: 'hidden', width: '100%', pb: { xs: 2, md: 4 } }}>
       {/* Falling leaves (kept light so the page stays calm) */}
@@ -75,9 +80,9 @@ const Header = () => {
             Where treasured family recipes live on. Cook with what you have and bring the taste of home to every table.
           </Typography>
         </Container>
-        <Box sx={{ position: 'relative', p: { xs: 25, md: 30, lg: 40 } }}>
-          <Box component="img" alt="" src={require("../../images/gold.webp")} sx={{ width: { xs: '60%', lg: '50%' }, height: { xs: '70%', lg: '80%' }, objectFit: 'cover', position: 'absolute', bottom: { xs: "20%", md: "13%", lg: '11%' }, right: { xs: '34%', lg: '40%' }, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
-          <Box component="img" alt="" src={require("../../images/leaves.webp")} sx={{ width: { xs: '60%', lg: '50%' }, height: { xs: '80%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "30%", md: '20%', lg: '30%' }, right: { xs: '0%' }, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
+        <Box sx={{ position: 'relative', p: { xs: 25, md: 30, lg: 40 }, opacity: artReady ? 1 : 0, transform: artReady ? 'none' : 'translateY(14px)', transition: 'opacity .8s ease, transform .8s ease' }}>
+          <Box component="img" alt="" src={require("../../images/gold.opt.webp")} sx={{ width: { xs: '60%', lg: '50%' }, height: { xs: '70%', lg: '80%' }, objectFit: 'cover', position: 'absolute', bottom: { xs: "20%", md: "13%", lg: '11%' }, right: { xs: '34%', lg: '40%' }, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
+          <Box component="img" alt="" src={require("../../images/leaves.opt.webp")} sx={{ width: { xs: '60%', lg: '50%' }, height: { xs: '80%' }, objectFit: 'contain', position: 'absolute', bottom: { xs: "30%", md: '20%', lg: '30%' }, right: { xs: '0%' }, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
           <Box component="img" alt="" src={require("../../images/food (1).webp")} sx={{ width: '100%', height: { xs: '115%', md: '90%', lg: '115%' }, objectFit: 'contain', position: 'absolute', bottom: 0, left: 0, zIndex: 2, userSelect: 'none', pointerEvents: 'none' }} />
         </Box>
       </Box>
