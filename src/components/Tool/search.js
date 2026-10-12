@@ -5,6 +5,7 @@ import Layout from '../layout/layout';
 import { Typography,Box, Grid, Card, CardMedia, CardContent } from '@mui/material';
 import Login from '../Login/login';
 import { useLogin } from '../Login/logincontext';
+import { API_URL } from '../../config';
 const SearchResults = () => {
   const { query } = useParams(); // Extract the query from URL params
   console.log("param:", query);
@@ -18,8 +19,8 @@ const SearchResults = () => {
       try {
         setLoading(true);
         // Replace with your actual API endpoint
-       // const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/search?recipe=${query}`);
-       const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/search?recipe=${query}`);
+       // const response = await axios.get(`${API_URL}/recipes/search?recipe=${query}`);
+       const response = await axios.get(`${API_URL}/recipes/search?recipe=${query}`);
        
         console.log("response:", response);
         setResults(response.data);

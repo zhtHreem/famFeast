@@ -5,6 +5,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+import { API_URL } from '../../config';
 function NewRecipe({ setAddRecipe }){
       const [ingredients,setIngredients]=useState([""]);
       const [directions,setDirections]=useState([""]);
@@ -80,8 +81,8 @@ function NewRecipe({ setAddRecipe }){
                 }
             }
             
-            //const response = await axios.post('https://fam-feast-api.vercel.app/api/recipes', formData, {
-            const response = await axios.post('https://fam-feast-api.vercel.app/api/recipes', formData, {
+            //const response = await axios.post(`${API_URL}/recipes`, formData, {
+            const response = await axios.post(`${API_URL}/recipes`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

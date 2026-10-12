@@ -1,4 +1,5 @@
 
+import 'dotenv/config';
 import express from 'express'
 import connectDB from './src/database/connectivity.js';
 import userRoutes from './src/database/models/User/routes.js';
@@ -15,14 +16,20 @@ const port = process.env.PORT || 5000;
 
 connectDB();
 // Apply CORS middleware globally for all routes
+// Comma-separated list of allowed frontend origins (see backend/.env.example)
+const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: "https://fam-feast-frontend.vercel.app",
+  origin: allowedOrigins,
   methods: ["POST", "GET", "PUT", "DELETE"],
   credentials: true
 }));
 
 // Handle preflight requests
-app.options('*', cors());
+app.options('*', cors({ origin: allowedOrigins, credentials: true }));
 
 app.use(express.json()); 
 

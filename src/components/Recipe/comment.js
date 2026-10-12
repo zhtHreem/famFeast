@@ -4,6 +4,7 @@ import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 const Comment = ({ comment, addReply, parentId }) => {
     const [replyText, setReplyText] = useState('');
@@ -82,7 +83,7 @@ const CommentSection = ({ recipeId }) => {
     useEffect(() => {
         const fetchComments = async () => {
             try {
-                const response = await axios.get(`https://fam-feast-api.vercel.app/api/comments?recipeId=${recipeId}`); 
+                const response = await axios.get(`${API_URL}/comments?recipeId=${recipeId}`); 
                 setComments(response.data);
             } catch (err) {
                 console.error('Failed to fetch comments:', err);
@@ -100,7 +101,7 @@ const CommentSection = ({ recipeId }) => {
         return;
     }
         try {
-            const response = await axios.post('https://fam-feast-api.vercel.app/api/comments', {
+            const response = await axios.post(`${API_URL}/comments`, {
                 name: commenterName,
                 text: newComment,
                 recipeId 
@@ -121,7 +122,7 @@ const CommentSection = ({ recipeId }) => {
         return;
     }
         try {
-            const response = await axios.post(`https://fam-feast-api.vercel.app/api/comments/${commentId}/replies`, {
+            const response = await axios.post(`${API_URL}/comments/${commentId}/replies`, {
                 name:commenterName,
                 text
             });

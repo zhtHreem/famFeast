@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { styled } from '@mui/material/styles'; 
 import PersonIcon from '@mui/icons-material/Person'; 
 import CloseIcon from '@mui/icons-material/Close';
+import { API_URL } from '../../config';
 
 const StyledListItem = styled(ListItem)(({ theme }) => ({
   borderRadius: '8px', marginBottom: '8px', backgroundColor: theme.palette.background.paper,
@@ -20,7 +21,7 @@ const Follower = ({ userId, setOpenFollower }) => {
   const fetchFollower = async (userId) => {
     Swal.fire({ title: 'Loading...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
     try {
-      const response = await axios.get(`https://fam-feast-api.vercel.app/api/users/${userId}/follower`);
+      const response = await axios.get(`${API_URL}/users/${userId}/follower`);
       setFollower(response.data.followers || []); Swal.close();
     } catch (error) {
       Swal.fire({ icon: 'error', title: 'Oops...', text: 'Something went wrong! Please try again later.' });

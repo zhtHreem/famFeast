@@ -16,6 +16,7 @@ import Footer from "../Footer/footer";
 import Swal from 'sweetalert2';
 
 import Comments from "./comment";
+import { API_URL } from '../../config';
 
 
 function Recipe(){
@@ -47,8 +48,8 @@ function Recipe(){
                 }
             });
           try { 
-      //      const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/${search}`); //https://fam-feast-api.vercel.app/api/recipes/${recipeId}
-           const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/${search}`);
+      //      const response = await axios.get(`${API_URL}/recipes/${search}`); //${API_URL}/recipes/${recipeId}
+           const response = await axios.get(`${API_URL}/recipes/${search}`);
 
            setRecipe(response.data);
             Swal.close(); 

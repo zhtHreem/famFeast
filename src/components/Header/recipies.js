@@ -4,6 +4,7 @@ import { Box, Typography,Grid,Stack,Card,CardContent,CardMedia,styled, Container
 import { Link } from 'react-router-dom';
 
 import { keyframes } from '@emotion/react';
+import { API_URL } from '../../config';
 /*
 const recipes = [
     { id: 1, image: require("../../images/Bir.png"), title: 'Biryani' },
@@ -62,7 +63,7 @@ export default function Recipes(){
     // Fetch recipes from the API
     const fetchRecipes = async () => {
       try {
-        const response = await axios.get('https://fam-feast-api.vercel.app/api/recipes');
+        const response = await axios.get(`${API_URL}/recipes`);
         setRecipes(response.data);
       } catch (err) {
         console.error('Failed to fetch recipes:', err);

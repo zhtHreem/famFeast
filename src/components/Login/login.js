@@ -9,8 +9,9 @@ import { Link } from "react-router-dom";
 import { useLogin } from "./logincontext";
 import Navbar from "../Header/navbar";
 import axios from 'axios';
+import { API_URL } from '../../config';
 
-const baseURL = 'https://fam-feast-api.vercel.app/api';
+const baseURL = API_URL;
 
 function Login({ setLogin }){
      const navigate = useNavigate();
@@ -24,7 +25,7 @@ function Login({ setLogin }){
 
      const handleLogin = async () => {
         try {
-          const response = await axios.post('https://fam-feast-api.vercel.app/api/users/login', {
+          const response = await axios.post(`${API_URL}/users/login`, {
             email,
             password
           });
@@ -80,9 +81,9 @@ function Login({ setLogin }){
 
       const handleSignup = async () => {
         try {
-           // const response = await axios.post('https://fam-feast-api.vercel.app/api/users', {
+           // const response = await axios.post(`${API_URL}/users`, {
               
-             const response = await axios.post('https://fam-feast-api.vercel.app/api/users', { 
+             const response = await axios.post(`${API_URL}/users`, { 
                 username,
                 email,
                 password

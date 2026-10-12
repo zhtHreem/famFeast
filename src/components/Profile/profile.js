@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import Follower from "./follower";
 import Following from "./following";
+import { API_URL } from '../../config';
 
 function Profile() {
     const { search } = useParams();
@@ -54,14 +55,14 @@ function Profile() {
 
         try {
             // Fetch the searched user data
-            const { data: searchedUser } = await axios.get(`https://fam-feast-api.vercel.app/api/users/${userId}`);
+            const { data: searchedUser } = await axios.get(`${API_URL}/users/${userId}`);
             setUser(searchedUser);
             setFollowerCount(searchedUser.followers.length);
             setFollowingCount(searchedUser.following.length);
 
             // Fetch the logged-in user data and check follow status, only if logged in
             if (loggedinUser) {
-                const { data: loggedInUserData } = await axios.get(`https://fam-feast-api.vercel.app/api/users/${loggedinUser}`);
+                const { data: loggedInUserData } = await axios.get(`${API_URL}/users/${loggedinUser}`);
                 const isFollowing = loggedInUserData.following.includes(userId);
                 setFollow(isFollowing);
             }
@@ -74,7 +75,7 @@ function Profile() {
 
     const fetchUserRecipes = async (userId) => {
         try {
-            const response = await axios.get(`https://fam-feast-api.vercel.app/api/recipes/user/${userId}`);
+            const response = await axios.get(`${API_URL}/recipes/user/${userId}`);
             setRecipes(response.data);
         } catch (error) {
             console.error('Error fetching recipes:', error);
@@ -87,10 +88,10 @@ function Profile() {
         try {
             if (follow) {
                 // Unfollow the user
-                await axios.post(`https://fam-feast-api.vercel.app/api/unfollow/${search}`, { loggedInUser: loggedinUser });
+                await axios.post(`${API_URL}/unfollow/${search}`, { loggedInUser: loggedinUser });
             } else {
                 // Follow the user
-                await axios.post(`https://fam-feast-api.vercel.app/api/follow/${search}`, { loggedInUser: loggedinUser });
+                await axios.post(`${API_URL}/follow/${search}`, { loggedInUser: loggedinUser });
             }
             setFollow(!follow); // Toggle follow state
         } catch (error) {
