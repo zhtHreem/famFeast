@@ -1,63 +1,75 @@
 import express from 'express';
 import Comment from './schema.js';
+import Recipe from '../Recipe/schema.js';
+import Cookbook from '../Cookbook/schema.js';
+import { requireAuth, optionalAuth } from '../../../middleware/auth.js';
+import { asyncHandler, HttpError, requireId, str } from '../../../utils/http.js';
+
 const router = express.Router();
 
+// A viewer may read/write comments only on recipes they can see.
+const visibleRecipe = async (recipeId, user) => {
+  requireId(recipeId, 'recipe id');
+  const recipe = await Recipe.findById(recipeId).select('visibility cookbook');
+  if (!recipe) throw new HttpError(404, 'Recipe not found.');
+  if (recipe.visibility === 'public') return recipe;
+  const ok = user && (await Cookbook.exists({ _id: recipe.cookbook, 'members.user': user._id }));
+  if (!ok) throw new HttpError(404, 'Recipe not found.');
+  return recipe;
+};
 
-// Get all comments
-// Get comments for a specific recipe
-router.get('/comments', async (req, res) => {
-  const { recipeId } = req.query; // Get recipeId from query params
-  try {
-    const comments = await Comment.find({ recipeId }); // Fetch comments for the specific recipe
+router.get(
+  '/comments',
+  optionalAuth,
+  asyncHandler(async (req, res) => {
+    await visibleRecipe(req.query.recipeId, req.user);
+    const comments = await Comment.find({ recipeId: req.query.recipeId }).sort({ createdAt: -1 }).limit(200);
     res.json(comments);
-  } catch (err) {
-    console.error('Error fetching comments:', err);
-    res.status(500).json({ error: 'Failed to fetch comments' });
-  }
-});
+  })
+);
 
-
-
-// Post a new comment
-router.post('/comments', async (req, res) => {
-  const { name, text, recipeId } = req.body; // Include recipeId in the request body
-  try {
-    const newComment = new Comment({ name, text, replies: [], recipeId }); // Add recipeId
-    await newComment.save();
-    res.status(201).json(newComment);
-  } catch (err) {
-    console.error('Failed to add comment:', err);
-    res.status(400).json({ error: 'Failed to add comment', details: err.message });
-  }
-});
-
-
-// Post a reply to a comment
-router.post('/comments/:id/replies', async (req, res) => {
-  console.log("Request Body:", req.body);
-  // In your backend
-console.log("Reply Data:", req.body); // Check what data is coming in
-console.log("Comment ID:",req.params); // Log the comment ID
-
-  const { id } = req.params;
-  const { name, text } = req.body;
-  try {
-    const comment = await Comment.findById(id);
-    if (!comment) {
-      return res.status(404).json({ error: 'Comment not found' });
-    }
-
-    // Add the new reply to the comment's replies array
-    const newReply = { name, text };
-    console.log("before saving reply", newReply);
-    comment.replies.push(newReply);
-    await comment.save();
-    console.log("after saving reply", comment); 
+router.post(
+  '/comments',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    await visibleRecipe(req.body.recipeId, req.user);
+    const text = str(req.body.text, 1000);
+    if (!text) throw new HttpError(400, 'Comment cannot be empty.');
+    const comment = await Comment.create({ user: req.user._id, name: req.user.username, text, recipeId: req.body.recipeId });
     res.status(201).json(comment);
-  } catch (err) {
-    console.error('Failed to add reply:', err);
-    res.status(400).json({ error: 'Failed to add reply', details: err.message });
-  }
-});
+  })
+);
+
+router.post(
+  '/comments/:id/replies',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    requireId(req.params.id, 'comment id');
+    const comment = await Comment.findById(req.params.id);
+    if (!comment) throw new HttpError(404, 'Comment not found.');
+    await visibleRecipe(comment.recipeId, req.user);
+    const text = str(req.body.text, 1000);
+    if (!text) throw new HttpError(400, 'Reply cannot be empty.');
+    comment.replies.push({ user: req.user._id, name: req.user.username, text });
+    await comment.save();
+    res.status(201).json(comment);
+  })
+);
+
+router.delete(
+  '/comments/:id',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    requireId(req.params.id, 'comment id');
+    const comment = await Comment.findById(req.params.id);
+    if (!comment) throw new HttpError(404, 'Comment not found.');
+    const recipe = await Recipe.findById(comment.recipeId).select('user');
+    const mine = comment.user?.equals(req.user._id);
+    const recipeOwner = recipe?.user.equals(req.user._id);
+    if (!mine && !recipeOwner) throw new HttpError(403, 'You cannot delete this comment.');
+    await comment.deleteOne();
+    res.json({ message: 'Comment deleted.' });
+  })
+);
 
 export default router;

@@ -26,3 +26,6 @@ yarn-error.log*
 .env
 */.env
 backend/node_modules
+
+# backups contain user data
+backend/backups

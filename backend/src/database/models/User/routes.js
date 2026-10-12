@@ -1,234 +1,176 @@
 import express from 'express';
 import User from './user.js';
-import mongoose from 'mongoose';
+import Recipe from '../Recipe/schema.js';
+import Comment from '../Comment/schema.js';
+import { requireAuth, signToken } from '../../../middleware/auth.js';
+import { authLimiter } from '../../../middleware/security.js';
+import { asyncHandler, HttpError, requireId, escapeRegex, str, publicUser } from '../../../utils/http.js';
+
 const router = express.Router();
 
-// Create New User
-router.post('/users', async (req, res) => {
-    try {
-        const { username, email, password } = req.body;
-        const user = new User({
-        username,
-        email,
-        password,
-        followers: [], // Initialize as an empty array
-        following: [], 
-    });
-        
-        console.log("user1",req.body);
-        console.log("user",user);
-        await user.save();
-        res.status(201).json(user);
-    } catch (error) {
-        console.error('Error creating user:', error); 
-        if (error.code === 11000) {
-            const field = Object.keys(error.keyValue)[0];
-            if (field === 'email') {
-                return res.status(400).json({ error: 'Email Address is already in use.' });
-            }
-            if (field === 'username') {
-                return res.status(400).json({ error: 'Username is already taken.' });
-            }
-        }
-        res.status(500).json({ error: `Error creating user: ${error.message}` });
-    }
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const USERNAME_RE = /^[A-Za-z0-9_.]{3,30}$/;
+
+const authPayload = (user) => ({
+  token: signToken(user),
+  user: { id: user._id.toString(), username: user.username, email: user.email, bio: user.bio || '' },
 });
 
+const validatePassword = (pw) => {
+  if (typeof pw !== 'string' || pw.length < 8) throw new HttpError(400, 'Password must be at least 8 characters.');
+  if (pw.length > 128) throw new HttpError(400, 'Password is too long.');
+};
 
-// Route for user login
-router.post('/users/login', async (req, res) => {
-    const { email, password } = req.body;
-    console.log('email:', email,'password:',password);
-    try {
-      // Find user by email
-      const user = await User.findOne({ email });
-      console.log('users:', user);
-      if (!user) {
-        return res.status(400).json({ error: 'Invalid email ' });
-      }
-  
-      // Check password
-      const isMatch = await user.comparePassword(password);
-      console.log('password111:', isMatch);
-      if (!isMatch) {
-        return res.status(400).json({ error: 'Invalid  password' });
-      }
-  
-      
-      const token = user;
-      console.log("token:",user._id,user.username)
-      const objectId = user._id;
-      const idString = objectId.toString();
-      console.log(idString);
-      // Send response
-      res.status(200).json({ user: { id:idString,email: user.email, name: user.username } });
-    } catch (error) {
-      res.status(500).json({ error: 'Server error' });
+// --- Auth -----------------------------------------------------------------
+
+router.post(
+  '/auth/register',
+  authLimiter,
+  asyncHandler(async (req, res) => {
+    const username = str(req.body.username, 30);
+    const email = str(req.body.email, 120).toLowerCase();
+    const { password } = req.body;
+    if (!USERNAME_RE.test(username)) {
+      throw new HttpError(400, 'Username must be 3-30 characters: letters, numbers, "_" or ".".');
     }
+    if (!EMAIL_RE.test(email)) throw new HttpError(400, 'Please enter a valid email address.');
+    validatePassword(password);
+
+    try {
+      const user = await User.create({ username, email, password });
+      res.status(201).json(authPayload(user));
+    } catch (error) {
+      if (error.code === 11000) {
+        const field = Object.keys(error.keyValue)[0];
+        throw new HttpError(409, field === 'email' ? 'Email address is already in use.' : 'Username is already taken.');
+      }
+      throw error;
+    }
+  })
+);
+
+router.post(
+  '/auth/login',
+  authLimiter,
+  asyncHandler(async (req, res) => {
+    const email = str(req.body.email, 120).toLowerCase();
+    const password = typeof req.body.password === 'string' ? req.body.password : '';
+    const user = email ? await User.findOne({ email }) : null;
+    // Same message for unknown email and wrong password so accounts can't be enumerated.
+    if (!user || !(await user.comparePassword(password))) {
+      throw new HttpError(401, 'Invalid email or password.');
+    }
+    res.json(authPayload(user));
+  })
+);
+
+router.get('/auth/me', requireAuth, (req, res) => {
+  const u = req.user;
+  res.json({ user: { id: u._id.toString(), username: u.username, email: u.email, bio: u.bio || '' } });
+});
+
+// --- Profiles -------------------------------------------------------------
+
+router.get(
+  '/users',
+  asyncHandler(async (req, res) => {
+    const q = str(req.query.q, 40);
+    if (!q) return res.json([]);
+    const users = await User.find({ username: new RegExp(escapeRegex(q), 'i') }).limit(20).select('username bio followers following');
+    res.json(users.map(publicUser));
+  })
+);
+
+router.get(
+  '/users/:id',
+  asyncHandler(async (req, res) => {
+    requireId(req.params.id, 'user id');
+    const user = await User.findById(req.params.id).select('username bio followers following createdAt');
+    if (!user) throw new HttpError(404, 'User not found.');
+    res.json({ ...publicUser(user), createdAt: user.createdAt, followerIds: user.followers, followingIds: user.following });
+  })
+);
+
+const listRelation = (field) =>
+  asyncHandler(async (req, res) => {
+    requireId(req.params.id, 'user id');
+    const user = await User.findById(req.params.id).populate(field, 'username bio');
+    if (!user) throw new HttpError(404, 'User not found.');
+    res.json({ [field]: user[field].map((u) => ({ id: u._id.toString(), username: u.username, bio: u.bio || '' })) });
   });
 
-// Read All Users
-router.get('/users', async (req, res) => {
+router.get('/users/:id/follower', listRelation('followers'));
+router.get('/users/:id/following', listRelation('following'));
+
+router.post(
+  '/follow/:id',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    requireId(req.params.id, 'user id');
+    if (req.params.id === req.user.id) throw new HttpError(400, "You can't follow yourself.");
+    const target = await User.findByIdAndUpdate(req.params.id, { $addToSet: { followers: req.user._id } }, { new: true });
+    if (!target) throw new HttpError(404, 'User not found.');
+    await User.findByIdAndUpdate(req.user._id, { $addToSet: { following: target._id } });
+    res.json(publicUser(target));
+  })
+);
+
+router.post(
+  '/unfollow/:id',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    requireId(req.params.id, 'user id');
+    const target = await User.findByIdAndUpdate(req.params.id, { $pull: { followers: req.user._id } }, { new: true });
+    if (!target) throw new HttpError(404, 'User not found.');
+    await User.findByIdAndUpdate(req.user._id, { $pull: { following: target._id } });
+    res.json(publicUser(target));
+  })
+);
+
+// --- Own account ----------------------------------------------------------
+
+router.put(
+  '/users/me',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+    if (req.body.username !== undefined) {
+      const username = str(req.body.username, 30);
+      if (!USERNAME_RE.test(username)) throw new HttpError(400, 'Invalid username.');
+      user.username = username;
+    }
+    if (req.body.bio !== undefined) user.bio = str(req.body.bio, 300);
+    if (req.body.newPassword) {
+      if (!(await user.comparePassword(req.body.currentPassword || ''))) {
+        throw new HttpError(401, 'Current password is incorrect.');
+      }
+      validatePassword(req.body.newPassword);
+      user.password = req.body.newPassword;
+    }
     try {
-        const users = await User.find();
-        res.status(200).json(users);
+      await user.save();
     } catch (error) {
-        res.status(500).json({ error: `Error fetching users: ${error.message}` });
+      if (error.code === 11000) throw new HttpError(409, 'Username is already taken.');
+      throw error;
     }
-});
+    res.json(authPayload(user));
+  })
+);
 
-
-
-
-// Read searched Users
-router.get('/users/:id', async (req, res) => {
-    console.log(`Reading user with ID: ${req.params.id}`);
-    try {
-        const users = await User.findById(req.params.id);
-        console.log(users)
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(500).json({ error: `Error fetching users: ${error.message}` });
-    }
-});
-
-// Follow a user
-
-router.post('/follow/:id', async (req, res) => {
-    const { loggedInUser } = req.body; // ID of the logged-in user (you)
-   console.log("logged in",loggedInUser)
-      console.log("search user",req.params.id)
-
-    try {
-        // Add logged-in user to the followers array of the searched user
-        const userToFollow = await User.findByIdAndUpdate(
-           req.params.id , // Searched user (user being followed)
-            { $addToSet: { followers: loggedInUser } }, // Add the logged-in user to the followers array
-            { new: true }
-        );
-
-        // Add searched user to the following array of the logged-in user
-        await User.findByIdAndUpdate(
-            loggedInUser , // Logged-in user (you)
-            { $addToSet: { following:req.params.id} }, // Add searched user to the following array
-            { new: true }
-        );
-
-        res.status(200).json(userToFollow);
-    } catch (error) {
-        res.status(500).json({ error: `Error following user: ${error.message}` });
-    }
-});
-
-
-// Unfollow a user
-router.post('/unfollow/:id', async (req, res) => {
-    const { loggedInUser} = req.body; // ID of the logged-in user (you)
-
-    try {
-        // Remove logged-in user from the followers array of the searched user
-        const userToUnfollow = await User.findByIdAndUpdate(
-            req.params.id , 
-            { $pull: { followers:  loggedInUser  } }, // Remove the logged-in user from the followers array
-            { new: true }
-        );
-
-        // Remove searched user from the following array of the logged-in user
-        await User.findByIdAndUpdate(
-             loggedInUser, // Logged-in user (you)
-            { $pull: { following: req.params.id} }, // Remove searched user from the following array
-            { new: true }
-        );
-
-        res.status(200).json(userToUnfollow);
-    } catch (error) {
-        res.status(500).json({ error: `Error unfollowing user: ${error.message}` });
-    }
-});
-
-
-// Get followers of a user
-router.get('/users/:id/follower', async (req, res) => {
-  try {
-    const userId = req.params.id;
-    console.log("userid",userId)
-    // Find the user by ID and populate the followers
-    const user = await User.findById(userId).populate('followers', 'username email');
-        console.log("user :::::",user)
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Return the followers' details
-    res.json({ followers: user.followers });
-        console.log("followersL", user.followers)
-
-  } catch (error) {
-    console.error('Error fetching followers:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-
-// Get following of a user
-router.get('/users/:id/following', async (req, res) => {
-  try {
-    const userId = req.params.id;
-    console.log("userid",userId)
-    // Find the user by ID and populate the followers
-    const user = await User.findById(userId).populate('following', 'username email');
-        console.log("user :::::",user)
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Return the followers' details
-    res.json({ following: user.following });
-        console.log("followersL", user.following)
-
-  } catch (error) {
-    console.error('Error fetching following:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Update User by ID
-
-router.put('/users/:id', async (req, res) => {
-    console.log(`Updating user with ID: ${req.params.id}`);
-    try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.status(200).json(user);
-    } catch (error) {
-        if (error.code === 11000) {
-            const field = Object.keys(error.keyValue)[0];
-            if (field === 'email') {
-                return res.status(400).json({ error: 'Email address is already in use.' });
-            }
-            if (field === 'username') {
-                return res.status(400).json({ error: 'Username is already taken.' });
-            }
-        }
-        res.status(500).json({ error: `Error updating user: ${error.message}` });
-    }
-});
-
-// Delete User by ID
-router.delete('/users/:id', async (req, res) => {
-    try {
-        const user = await User.findByIdAndDelete(req.params.id);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.status(200).json({ message: 'User deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ error: `Error deleting user: ${error.message}` });
-    }
-});
+router.delete(
+  '/users/me',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+    if (!(await user.comparePassword(req.body.password || ''))) throw new HttpError(401, 'Password is incorrect.');
+    await Promise.all([
+      Recipe.deleteMany({ user: user._id, visibility: 'public' }),
+      Comment.deleteMany({ user: user._id }),
+      User.updateMany({}, { $pull: { followers: user._id, following: user._id } }),
+      user.deleteOne(),
+    ]);
+    res.json({ message: 'Account deleted.' });
+  })
+);
 
 export default router;
